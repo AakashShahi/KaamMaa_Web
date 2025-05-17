@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {toast} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import logo from '../assets/logo/kaammaa_logo.png';
 import workerImg from '../assets/logo/login_worker.png';
 import { FaGoogle, FaFacebook, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 export default function LoginPage() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -36,8 +40,12 @@ export default function LoginPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      alert('Form submitted successfully!');
-      // Handle login logic here (API call)
+      if (email === 'admin' && password === 'admin123') {
+        toast.success('Login successful!');
+        navigate('/dashboard/home'); // Replace with your actual route
+      } else {
+        toast.error('Invalid credentials');
+      }
     }
   };
 
@@ -57,15 +65,10 @@ export default function LoginPage() {
 
       {/* Right Half - Scrollable Login Form */}
       <div className="w-1/2 p-8 flex flex-col items-center justify-start overflow-y-auto max-h-screen">
-        {/* Logo */}
         <img src={logo} alt="KaamMaa Logo" className="h-14 w-auto mb-4" />
-
-        {/* Heading */}
         <h2 className="text-2xl font-Inter font-bold mb-6 text-black">Login Page</h2>
 
-        {/* Form */}
         <form className="w-full max-w-sm" onSubmit={handleSubmit}>
-          {/* Email / Username */}
           <div className="mb-4">
             <label className="block text-gray-700 mb-1 text-Inter" htmlFor="email">
               Email or Username
@@ -81,7 +84,6 @@ export default function LoginPage() {
             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
           </div>
 
-          {/* Password */}
           <div className="mb-2 relative">
             <label className="block text-gray-700 text-Inter mb-1" htmlFor="password">
               Password
@@ -104,14 +106,12 @@ export default function LoginPage() {
             {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
           </div>
 
-          {/* Forgot Password */}
           <div className="text-right mb-6">
             <a href="#" className="text-sm text-primary hover:underline">
               Forgot Password?
             </a>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             className="w-1/2 bg-primary font-Inter text-white py-2 rounded-md hover:bg-black transition focus:outline-none"
@@ -120,7 +120,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Social Login Buttons */}
         <div className="flex gap-4 mt-6 w-full max-w-sm">
           <button className="flex items-center justify-center w-1/2 py-2 bg-secondary rounded-md hover:bg-primary transition">
             <FaGoogle className="mr-2 text-xl" />
@@ -132,7 +131,6 @@ export default function LoginPage() {
           </button>
         </div>
 
-        {/* New in KAAMMAA + Register */}
         <div className="flex flex-wrap items-center justify-center mt-6 text-sm">
           <span className="font-bold text-black mr-1">New in</span>
           <span className="font-bold italic text-black">KAAM</span>
