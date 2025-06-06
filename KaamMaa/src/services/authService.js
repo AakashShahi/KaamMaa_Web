@@ -3,8 +3,9 @@ import { loginUserApi, registerUserApi } from "../api/authApi"
 export const registerUserService = async (formData) => {
     try {
         const response = await registerUserApi(formData)
-        return response.data // body of response
+        return response.data
     } catch (error) {
+        console.log(error);
         throw error.response?.data || { message: "registration failed" }
     }
 }
