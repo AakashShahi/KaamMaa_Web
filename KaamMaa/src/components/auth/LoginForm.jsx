@@ -1,98 +1,105 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { FaEye, FaEyeSlash, FaGoogle, FaFacebook } from 'react-icons/fa';
+
 import logo from '../../assets/logo/kaammaa_logo.png';
 import workerImg from '../../assets/logo/login_worker.png';
-import { FaGoogle, FaFacebook, FaEye, FaEyeSlash } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { useLoginUserTan } from '../../hooks/useLoginUserTan';
 
 export default function LoginForm() {
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [errors, setErrors] = useState({ email: '', password: '' });
-
     const togglePassword = () => setShowPassword(prev => !prev);
+    const { mutate, isPending } = useLoginUserTan();
 
-    const validateForm = () => {
-        let isValid = true;
-        const newErrors = { email: '', password: '' };
+    // Dynamic Yup schema based on identifier value
+    const validationSchema = Yup.object({
+        identifier: Yup.string()
+            .required("Email or Username is required")
+            .test('email-or-username', 'Invalid email or username', function (value) {
+                if (!value) return false;
 
-        if (!email.trim()) {
-            newErrors.email = 'Email or Username is required.';
-            isValid = false;
-        }
+                if (value.includes('@')) {
 
-        if (!password) {
-            newErrors.password = 'Password is required.';
-            isValid = false;
-        } else if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(password)) {
-            newErrors.password = 'Password must be at least 6 characters and contain letters and numbers.';
-            isValid = false;
-        }
+                    return Yup.string().email().isValidSync(value);
+                } else {
+                    return /^[a-zA-Z0-9_]{3,20}$/.test(value);
+                }
+            }),
+        password: Yup.string()
+            .min(8, "Minimum 8 characters required")
+            .required("Password is required"),
+    });
 
-        setErrors(newErrors);
-        return isValid;
-    };
+    const formik = useFormik({
+        initialValues: {
+            identifier: '',
+            password: '',
+        },
+        validationSchema,
+        onSubmit: (values) => {
+            // Prepare data for backend: decide field email or username
+            const payload = values.identifier.includes('@')
+                ? { email: values.identifier, password: values.password }
+                : { username: values.identifier, password: values.password };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (validateForm()) {
-            if (email === 'admin' && password === 'admin123') {
-                toast.success('Login successful!');
-                navigate('/dashboard/home'); // Replace with your actual route
-            } else {
-                toast.error('Invalid credentials');
-            }
-        }
-    };
+            mutate(payload, {
+                onSuccess: () => {
+                    navigate('/dashboard/home');
+                }
+            });
+        },
+    });
 
     return (
         <div className="w-screen h-screen flex bg-white">
-            {/* Left Half - Image Full Size */}
+            {/* Left side */}
             <div className="w-[55%] h-full relative">
                 <img src={logo} alt="KaamMaa Logo" className="absolute h-14 w-auto left-4 top-4 z-10" />
-                <img
-                    src={workerImg}
-                    alt="Worker"
-                    className="w-full h-full object-contain"
-                />
+                <img src={workerImg} alt="Worker" className="w-full h-full object-contain" />
             </div>
 
-            {/* Right Half - Login Form */}
+            {/* Right side form */}
             <div className="w-[45%] h-full p-8 flex flex-col items-center justify-center overflow-y-auto">
                 <img src={logo} alt="KaamMaa Logo" className="h-14 w-auto mb-4" />
                 <h2 className="text-2xl mb-6 text-black">Login Page</h2>
 
-                <form className="w-full max-w-sm" onSubmit={handleSubmit}>
+                <form className="w-full max-w-sm" onSubmit={formik.handleSubmit}>
                     <div className="mb-4">
-                        <label className="block text-gray-700 mb-1" htmlFor="email">
+                        <label htmlFor="identifier" className="block text-gray-700 mb-1">
                             Email or Username
                         </label>
                         <input
+                            id="identifier"
+                            name="identifier"
                             type="text"
-                            id="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="bg-secondary text-black w-full px-4 py-2 border border-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                             placeholder="Enter your email or username"
+                            className="bg-secondary text-black w-full px-4 py-2 border border-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                            value={formik.values.identifier}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
                         />
-                        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                        {formik.touched.identifier && formik.errors.identifier && (
+                            <p className="text-red-500 text-sm mt-1">{formik.errors.identifier}</p>
+                        )}
                     </div>
 
                     <div className="mb-2 relative">
-                        <label className="block text-gray-700 mb-1" htmlFor="password">
+                        <label htmlFor="password" className="block text-gray-700 mb-1">
                             Password
                         </label>
                         <input
-                            type={showPassword ? "text" : "password"}
                             id="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="bg-secondary text-black w-full px-4 py-2 pr-10 border border-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                            name="password"
+                            type={showPassword ? 'text' : 'password'}
                             placeholder="Enter your password"
+                            className="bg-secondary text-black w-full px-4 py-2 pr-10 border border-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                            value={formik.values.password}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
                         />
                         <button
                             type="button"
@@ -101,7 +108,9 @@ export default function LoginForm() {
                         >
                             {showPassword ? <FaEye /> : <FaEyeSlash />}
                         </button>
-                        {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+                        {formik.touched.password && formik.errors.password && (
+                            <p className="text-red-500 text-sm mt-1">{formik.errors.password}</p>
+                        )}
                     </div>
 
                     <div className="text-right mb-6">
@@ -112,9 +121,10 @@ export default function LoginForm() {
 
                     <button
                         type="submit"
-                        className="w-full bg-primary text-white py-2 rounded-md hover:bg-black transition"
+                        disabled={isPending}
+                        className="w-full bg-primary text-white py-2 rounded-md hover:bg-black transition disabled:opacity-50"
                     >
-                        Login
+                        {isPending ? "Logging in..." : "Login"}
                     </button>
                 </form>
 
