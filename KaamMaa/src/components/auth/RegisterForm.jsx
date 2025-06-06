@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import logo from '../../assets/logo/kaammaa_logo.png';
 import workerImg from '../../assets/logo/login_worker.png';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useRegisterUserTan } from '../../hooks/useRegisterUserTan';
 
 export default function RegisterForm() {
+    const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const togglePassword = () => setShowPassword(prev => !prev);
     const { mutate, isPending } = useRegisterUserTan();
@@ -42,7 +43,7 @@ export default function RegisterForm() {
         validationSchema,
         onSubmit: (data) => {
             const { confirmPassword, ...payload } = data;
-            mutate(payload); // send username, email, password, role
+            mutate(payload, { onSuccess: () => { navigate("/dashboard/home") } }); // send username, email, password, role
         }
     });
 
