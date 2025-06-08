@@ -44,7 +44,7 @@ export default function Header() {
                 {/* Navigation */}
                 <nav className="hidden md:flex items-center gap-10 text-[15px] font-semibold">
                     <NavLink
-                        to="/dashboard/home"
+                        to="/dashboard"
                         className={({ isActive }) =>
                             `transform transition-transform duration-200 hover:scale-105 ${isActive
                                 ? 'text-[#FA5804] border-b-2 border-[#FA5804] pb-1'
