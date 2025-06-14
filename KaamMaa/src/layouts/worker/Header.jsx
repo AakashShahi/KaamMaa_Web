@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FaUserCircle, FaEllipsisV } from 'react-icons/fa';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
-import logo from '../assets/logo/kaammaa_logo.png';
+import logo from '../../assets/logo/kaammaa_logo.png';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
 

@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
 import logo from '../../assets/logo/kaammaa_logo.png';
 import workerImg from '../../assets/logo/login_worker.png';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import {
+    FaEye,
+    FaEyeSlash,
+    FaCheckCircle,
+    FaTimesCircle,
+    FaUser
+} from 'react-icons/fa';
+import { MdEmail } from 'react-icons/md';
+import { RiLockPasswordFill } from 'react-icons/ri';
 import { Link, useNavigate } from 'react-router-dom';
-import { useFormik } from "formik";
-import * as Yup from "yup";
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import { useRegisterUserTan } from '../../hooks/useRegisterUserTan';
 
 export default function RegisterForm() {
@@ -14,22 +22,10 @@ export default function RegisterForm() {
     const { mutate, isPending } = useRegisterUserTan();
 
     const validationSchema = Yup.object({
-        username: Yup.string()
-            .min(6, "Min 3 characters")
-            .max(20, "Max 20 characters")
-            .required("Username required"),
-        email: Yup.string()
-            .email("Invalid email")
-            .required("Email required"),
-        password: Yup.string()
-            .min(8, "Min 8 characters")
-            .required("Password required"),
-        confirmPassword: Yup.string()
-            .oneOf([Yup.ref('password')], 'Passwords must match')
-            .required('Confirm Password required'),
-        role: Yup.string()
-            .oneOf(['admin', 'worker'], 'Select a role')
-            .required('Role is required'),
+        username: Yup.string().min(6, "Min 6 characters").max(20, "Max 20 characters").required("Username required"),
+        email: Yup.string().email("Invalid email").required("Email required"),
+        password: Yup.string().min(8, "Min 8 characters").required("Password required"),
+        confirmPassword: Yup.string().oneOf([Yup.ref('password')], 'Passwords must match').required('Confirm Password required'),
     });
 
     const formik = useFormik({
@@ -38,177 +34,166 @@ export default function RegisterForm() {
             email: "",
             password: "",
             confirmPassword: "",
-            role: ""
+            role: "worker",
         },
         validationSchema,
         onSubmit: (data) => {
             const { confirmPassword, ...payload } = data;
-            mutate(payload, { onSuccess: () => { navigate("/dashboard/home") } }); // send username, email, password, role
+            mutate(payload, {
+                onSuccess: () => navigate("/")
+            });
         }
     });
 
+    const isValid = (field) => formik.touched[field] && !formik.errors[field];
+    const isInvalid = (field) => formik.touched[field] && formik.errors[field];
+    const renderValidationIcon = (field) => {
+        if (!formik.touched[field]) return null;
+        return isValid(field)
+            ? <FaCheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500" />
+            : <FaTimesCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 text-red-500" />;
+    };
+
     return (
-        <div className="w-screen h-screen bg-white flex">
-            {/* Left Half - Worker Image */}
-            <div className="w-[55%] flex items-center justify-center relative">
-                <img src={logo} alt="KaamMaa Logo" className="absolute h-14 w-auto left-4 top-4" />
-                <div className="w-full h-full flex items-center justify-center">
-                    <img
-                        src={workerImg}
-                        alt="Worker"
-                        className="w-full h-full object-contain"
-                    />
-                </div>
+        <div className="w-screen h-screen flex bg-white">
+            {/* Left side */}
+            <div className="w-full md:w-1/2 flex flex-col justify-center items-center relative px-6 py-10">
+                <img src={logo} alt="KaamMaa Logo" className="absolute top-6 left-6 h-10 md:h-12" />
+                <img src={workerImg} alt="Worker" className="w-3/4 max-h-[70vh] object-contain" />
+                <h1 className="text-black text-3xl md:text-4xl font-extrabold mt-4 tracking-wide text-center">
+                    Join the Workforce
+                </h1>
             </div>
 
-            {/* Right Half - Registration Form */}
-            <div className="w-[45%] p-8 flex flex-col items-center justify-start overflow-y-auto max-h-screen">
-                <img src={logo} alt="KaamMaa Logo" className="h-14 w-auto mb-4" />
-                <h2 className="text-2xl font-Inter font-bold mb-6 text-black">Register</h2>
-
-                <form className="w-full max-w-sm" onSubmit={formik.handleSubmit}>
-                    {/* Username */}
-                    <div className="mb-4">
-                        <label className="block text-gray-700 mb-1 text-Inter" htmlFor="username">
-                            Username
-                        </label>
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            value={formik.values.username}
-                            className="bg-secondary text-black w-full px-4 py-2 border border-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                            placeholder="Enter your username"
-                        />
-                        {formik.touched.username && formik.errors.username && (
-                            <p className="text-red-500 text-sm mt-1">{formik.errors.username}</p>
-                        )}
+            {/* Right side */}
+            <div className="w-full md:w-1/2 flex justify-center items-center px-6 py-10">
+                <div className="bg-white rounded-2xl shadow-2xl px-6 sm:px-8 py-8 w-full max-w-md">
+                    <div className="text-center mb-8">
+                        <img src={logo} alt="KaamMaa Logo" className="h-10 mx-auto mb-2" />
+                        <h2 className="text-xl md:text-2xl font-bold text-gray-800">Create your Worker Account</h2>
+                        <p className="text-sm text-gray-500">Start your journey with KaamMaa today!</p>
                     </div>
 
-                    {/* Email */}
-                    <div className="mb-4">
-                        <label className="block text-gray-700 mb-1 text-Inter" htmlFor="email">
-                            Email or Username
-                        </label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            value={formik.values.email}
-                            className="bg-secondary text-black w-full px-4 py-2 border border-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                            placeholder="Enter your email"
-                        />
-                        {formik.touched.email && formik.errors.email && (
-                            <p className="text-red-500 text-sm mt-1">{formik.errors.email}</p>
-                        )}
-                    </div>
-
-                    {/* Password */}
-                    <div className="mb-4 relative">
-                        <label className="block text-gray-700 text-Inter mb-1" htmlFor="password">
-                            Password
-                        </label>
-                        <input
-                            type={showPassword ? "text" : "password"}
-                            id="password"
-                            name="password"
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            value={formik.values.password}
-                            className="bg-secondary text-black w-full px-4 py-2 pr-10 border border-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                            placeholder="Enter your password"
-                        />
-                        <button
-                            type="button"
-                            onClick={togglePassword}
-                            className="absolute top-[30px] right-3 text-black bg-transparent focus:outline-none hover:text-primary"
-                        >
-                            {showPassword ? <FaEye /> : <FaEyeSlash />}
-                        </button>
-                        {formik.touched.password && formik.errors.password && (
-                            <p className="text-red-500 text-sm mt-1">{formik.errors.password}</p>
-                        )}
-                    </div>
-
-                    {/* Confirm Password */}
-                    <div className="mb-4 relative">
-                        <label className="block text-gray-700 text-Inter mb-1" htmlFor="confirmPassword">
-                            Confirm Password
-                        </label>
-                        <input
-                            type={showPassword ? "text" : "password"}
-                            id="confirmPassword"
-                            name="confirmPassword"
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            value={formik.values.confirmPassword}
-                            className="bg-secondary text-black w-full px-4 py-2 pr-10 border border-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                            placeholder="Confirm your password"
-                        />
-                        {formik.touched.confirmPassword && formik.errors.confirmPassword && (
-                            <p className="text-red-500 text-sm mt-1">{formik.errors.confirmPassword}</p>
-                        )}
-                    </div>
-
-                    {/* Role Selection */}
-                    <div className="mb-6">
-                        <label className="block text-gray-700 text-Inter mb-2">Select Role</label>
-                        <div className="flex items-center gap-6">
-                            {/* Admin */}
-                            <label className="flex items-center cursor-pointer text-black font-medium">
+                    <form onSubmit={formik.handleSubmit} className="space-y-5">
+                        {/* Username */}
+                        <div className="relative">
+                            <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
+                            <div className="relative">
+                                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                                    <FaUser />
+                                </span>
                                 <input
-                                    type="radio"
-                                    name="role"
-                                    value="admin"
-                                    className="hidden peer"
-                                    checked={formik.values.role === 'admin'}
+                                    type="text"
+                                    name="username"
+                                    id="username"
                                     onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    value={formik.values.username}
+                                    placeholder="e.g. bikash123"
+                                    className="w-full pl-10 pr-10 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-[#FA5804] focus:outline-none"
                                 />
-                                <span className="w-5 h-5 inline-block rounded-full border-2 border-[#FA5804] mr-2 peer-checked:bg-[#FA5804] peer-checked:border-[#FA5804]"></span>
-                                Admin
-                            </label>
-
-                            {/* Worker */}
-                            <label className="flex items-center cursor-pointer text-black font-medium">
-                                <input
-                                    type="radio"
-                                    name="role"
-                                    value="worker"
-                                    className="hidden peer"
-                                    checked={formik.values.role === 'worker'}
-                                    onChange={formik.handleChange}
-                                />
-                                <span className="w-5 h-5 inline-block rounded-full border-2 border-[#FA5804] mr-2 peer-checked:bg-[#FA5804] peer-checked:border-[#FA5804]"></span>
-                                Worker
-                            </label>
+                                {renderValidationIcon("username")}
+                            </div>
+                            {isInvalid("username") && (
+                                <p className="text-sm text-red-500 mt-1">{formik.errors.username}</p>
+                            )}
                         </div>
-                        {formik.touched.role && formik.errors.role && (
-                            <p className="text-red-500 text-sm mt-1">{formik.errors.role}</p>
-                        )}
-                    </div>
 
-                    {/* Submit Button */}
-                    <button
-                        type="submit"
-                        disabled={isPending}
-                        className="w-1/2 bg-primary font-Inter text-white py-2 rounded-md hover:bg-black transition focus:outline-none disabled:opacity-50"
-                    >
-                        {isPending ? "Registering..." : "Register"}
-                    </button>
-                </form>
+                        {/* Email */}
+                        <div className="relative">
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+                            <div className="relative">
+                                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                                    <MdEmail />
+                                </span>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    id="email"
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    value={formik.values.email}
+                                    placeholder="e.g. example@email.com"
+                                    className="w-full pl-10 pr-10 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-[#FA5804] focus:outline-none"
+                                />
+                                {renderValidationIcon("email")}
+                            </div>
+                            {isInvalid("email") && (
+                                <p className="text-sm text-red-500 mt-1">{formik.errors.email}</p>
+                            )}
+                        </div>
 
-                {/* Already have an account */}
-                <div className="flex flex-wrap items-center justify-center mt-6 text-sm">
-                    <span className="font-bold text-black mr-1">Already in</span>
-                    <span className="font-bold italic text-black">KAAM</span>
-                    <span className="font-bold italic text-primary">MAA?</span>
-                    <Link to="/" className="ml-2 text-primary font-bold hover:underline">
-                        Sign in
-                    </Link>
+                        {/* Password */}
+                        <div className="relative">
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+                            <div className="relative">
+                                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                                    <RiLockPasswordFill />
+                                </span>
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    name="password"
+                                    id="password"
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    value={formik.values.password}
+                                    placeholder="********"
+                                    className="w-full pl-10 pr-10 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-[#FA5804] focus:outline-none"
+                                />
+                                <span
+                                    className="absolute top-1/2 right-10 transform -translate-y-1/2 cursor-pointer text-gray-600"
+                                    onClick={togglePassword}
+                                >
+                                    {showPassword ? <FaEye /> : <FaEyeSlash />}
+                                </span>
+                                {renderValidationIcon("password")}
+                            </div>
+                            {isInvalid("password") && (
+                                <p className="text-sm text-red-500 mt-1">{formik.errors.password}</p>
+                            )}
+                        </div>
+
+                        {/* Confirm Password */}
+                        <div className="relative">
+                            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirm Password</label>
+                            <div className="relative">
+                                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                                    <RiLockPasswordFill />
+                                </span>
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    name="confirmPassword"
+                                    id="confirmPassword"
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    value={formik.values.confirmPassword}
+                                    placeholder="Re-enter password"
+                                    className="w-full pl-10 pr-10 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-[#FA5804] focus:outline-none"
+                                />
+                                {renderValidationIcon("confirmPassword")}
+                            </div>
+                            {isInvalid("confirmPassword") && (
+                                <p className="text-sm text-red-500 mt-1">{formik.errors.confirmPassword}</p>
+                            )}
+                        </div>
+
+                        {/* Submit Button */}
+                        <button
+                            type="submit"
+                            disabled={isPending}
+                            className="w-full bg-[#FA5804] text-white font-bold py-2 rounded-md hover:bg-black transition-colors duration-300 disabled:opacity-60"
+                        >
+                            {isPending ? "Registering..." : "Register as Worker"}
+                        </button>
+                    </form>
+
+                    {/* Login Link */}
+                    <p className="mt-6 text-sm text-center text-gray-600">
+                        Already on <span className="font-bold italic">Kaam</span><span className="font-bold italic text-[#FA5804]">Maa</span>?{" "}
+                        <Link to="/" className="text-[#FA5804] font-semibold hover:underline">
+                            Sign In
+                        </Link>
+                    </p>
                 </div>
             </div>
         </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function HomePage() {
+export default function WorkerHomePage() {
     return (
         <div className="w-full px-4">
             <h1 className="text-2xl font-semibold text-[#FA5804] mb-6">Welcome to KaamMaa</h1>

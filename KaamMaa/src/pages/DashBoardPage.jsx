@@ -1,8 +1,8 @@
 import React from 'react';
-import HomePage from '../components/worker/HomePage';
+import WorkerHomePage from '../components/worker/WorkerHomePage';
 
 export default function DashboardPage() {
   return (
-    <HomePage />
+    <WorkerHomePage />
   );
 }
