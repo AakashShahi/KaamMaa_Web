@@ -67,8 +67,16 @@ export default function LoginForm() {
                 : { username: values.identifier, password: values.password };
 
             mutate(payload, {
-                onSuccess: () => {
-                    navigate('/dashboard');
+                onSuccess: (data) => {
+                    const role = data?.data?.role || data?.data?.user?.role;
+                    if (role === 'admin') {
+                        navigate('/admin/dashboard');
+                    } else if (role === 'worker') {
+                        navigate('/worker/dashboard');
+                    } else {
+                        navigate('/login');
+                        toast.error("Unknown role, please contact support");
+                    }
                 }
             });
         },
@@ -250,6 +258,7 @@ export default function LoginForm() {
                     <h2 className="text-xl font-bold text-black">Welcome, {user.username}</h2>
                     <button onClick={logout} className="text-[#FA5804] font-semibold hover:underline">Logout</button>
                 </div>
+
             )}
         </div>
     );

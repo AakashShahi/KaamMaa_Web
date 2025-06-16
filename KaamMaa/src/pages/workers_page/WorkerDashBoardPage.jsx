@@ -1,7 +1,7 @@
 import React from 'react';
 import WorkerHomePage from '../../components/worker/WorkerHomePage';
 
-export default function DashboardPage() {
+export default function WorkerDashboardPage() {
   return (
     <WorkerHomePage />
   );
