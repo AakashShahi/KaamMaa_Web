@@ -21,6 +21,31 @@ export default function RegisterForm() {
     const togglePassword = () => setShowPassword(prev => !prev);
     const { mutate, isPending } = useRegisterUserTan();
 
+    const [passwordChecklist, setPasswordChecklist] = useState({
+        length: false,
+        number: false,
+        uppercase: false,
+        specialChar: false,
+    });
+    const [passwordFocused, setPasswordFocused] = useState(false);
+
+    const validatePasswordLive = (password) => {
+        const checklist = {
+            length: password.length >= 8,
+            number: /[0-9]/.test(password),
+            uppercase: /[A-Z]/.test(password),
+            specialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+        };
+        setPasswordChecklist(checklist);
+    };
+
+    const getPasswordStrength = () => {
+        const validCount = Object.values(passwordChecklist).filter(Boolean).length;
+        if (validCount <= 1) return { level: 'Weak', color: 'bg-red-500', width: 'w-1/3' };
+        if (validCount === 2 || validCount === 3) return { level: 'Medium', color: 'bg-yellow-500', width: 'w-2/3' };
+        return { level: 'Strong', color: 'bg-green-500', width: 'w-full' };
+    };
+
     const validationSchema = Yup.object({
         username: Yup.string().min(6, "Min 6 characters").max(20, "Max 20 characters").required("Username required"),
         email: Yup.string().email("Invalid email").required("Email required"),
@@ -134,8 +159,15 @@ export default function RegisterForm() {
                                     type={showPassword ? 'text' : 'password'}
                                     name="password"
                                     id="password"
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
+                                    onFocus={() => setPasswordFocused(true)}
+                                    onBlur={(e) => {
+                                        setPasswordFocused(false);
+                                        formik.handleBlur(e);
+                                    }}
+                                    onChange={(e) => {
+                                        formik.handleChange(e);
+                                        validatePasswordLive(e.target.value);
+                                    }}
                                     value={formik.values.password}
                                     placeholder="********"
                                     className="w-full pl-10 pr-10 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-[#FA5804] focus:outline-none"
@@ -150,6 +182,35 @@ export default function RegisterForm() {
                             </div>
                             {isInvalid("password") && (
                                 <p className="text-sm text-red-500 mt-1">{formik.errors.password}</p>
+                            )}
+
+                            {/* Show strength bar + checklist only on focus */}
+                            {passwordFocused && (
+                                <div className="mt-3">
+                                    {/* Progress Bar */}
+                                    <div className="w-full h-2 bg-gray-200 rounded-full mb-1">
+                                        <div className={`h-2 rounded-full ${getPasswordStrength().color} ${getPasswordStrength().width}`} />
+                                    </div>
+                                    <p className={`text-xs font-medium ${getPasswordStrength().color.replace('bg', 'text')}`}>
+                                        {getPasswordStrength().level}
+                                    </p>
+
+                                    {/* Checklist */}
+                                    <ul className="text-sm mt-2 space-y-1 text-gray-600">
+                                        <li className={passwordChecklist.length ? "text-green-600" : ""}>
+                                            {passwordChecklist.length ? "✔" : "✘"} At least 8 characters
+                                        </li>
+                                        <li className={passwordChecklist.number ? "text-green-600" : ""}>
+                                            {passwordChecklist.number ? "✔" : "✘"} Includes a number
+                                        </li>
+                                        <li className={passwordChecklist.uppercase ? "text-green-600" : ""}>
+                                            {passwordChecklist.uppercase ? "✔" : "✘"} Includes uppercase letter
+                                        </li>
+                                        <li className={passwordChecklist.specialChar ? "text-green-600" : ""}>
+                                            {passwordChecklist.specialChar ? "✔" : "✘"} Includes special character
+                                        </li>
+                                    </ul>
+                                </div>
                             )}
                         </div>
 

@@ -2,8 +2,8 @@ import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
-import MainLayout from '../layouts/MainLayout';
-import DashboardPage from '../pages/DashBoardPage';
+import DashboardPage from '../pages/workers_page/DashBoardPage';
+import MainLayout from '../layouts/worker/MainLayout';
 
 export default function AppRouter() {
   return (

@@ -19,6 +19,24 @@ export default function LoginForm() {
     const togglePassword = () => setShowPassword(prev => !prev);
     const { mutate, isPending } = useLoginUserTan();
 
+    const passwordChecklist = (password) => [
+        { label: "Minimum 8 characters", valid: password.length >= 8 },
+        { label: "At least 1 uppercase letter", valid: /[A-Z]/.test(password) },
+        { label: "At least 1 number", valid: /\d/.test(password) },
+        { label: "At least 1 special character", valid: /[^A-Za-z0-9]/.test(password) },
+    ];
+
+    const getPasswordStrength = (password) => {
+        const rules = passwordChecklist(password);
+        const validCount = rules.filter(r => r.valid).length;
+
+        if (validCount === 0) return { width: '0%', color: '#e5e7eb', label: 'Very Weak' };
+        if (validCount === 1) return { width: '25%', color: '#dc2626', label: 'Weak' };
+        if (validCount === 2) return { width: '50%', color: '#f59e0b', label: 'Medium' };
+        if (validCount === 3) return { width: '75%', color: '#84cc16', label: 'Good' };
+        return { width: '100%', color: '#16a34a', label: 'Strong' };
+    };
+
     const validationSchema = Yup.object({
         identifier: Yup.string()
             .required("Email or Username is required")
@@ -140,6 +158,40 @@ export default function LoginForm() {
                             {isInvalid("password") && (
                                 <p className="text-red-500 text-sm mt-1">{formik.errors.password}</p>
                             )}
+
+                            {/* Password Strength UI */}
+                            {formik.values.password && (
+                                <div className="mt-3 space-y-2">
+                                    {/* Progress bar */}
+                                    <div className="w-full h-2 rounded bg-gray-200 overflow-hidden">
+                                        <div
+                                            className="h-full rounded transition-all duration-300"
+                                            style={{
+                                                width: getPasswordStrength(formik.values.password).width,
+                                                backgroundColor: getPasswordStrength(formik.values.password).color,
+                                            }}
+                                        />
+                                    </div>
+                                    <p className="text-sm font-medium"
+                                        style={{ color: getPasswordStrength(formik.values.password).color }}>
+                                        {getPasswordStrength(formik.values.password).label}
+                                    </p>
+
+                                    {/* Checklist */}
+                                    <ul className="text-sm space-y-1">
+                                        {passwordChecklist(formik.values.password).map((item, i) => (
+                                            <li key={i} className="flex items-center gap-2">
+                                                {item.valid
+                                                    ? <FaCheckCircle className="text-green-500" />
+                                                    : <FaTimesCircle className="text-gray-400" />}
+                                                <span className={item.valid ? "text-green-600" : "text-gray-600"}>
+                                                    {item.label}
+                                                </span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
                         </div>
 
                         <div className="text-right">
@@ -157,18 +209,16 @@ export default function LoginForm() {
                         </button>
                     </form>
 
-                    {/* Divider */}
                     <div className="flex items-center my-6">
                         <div className="flex-grow border-t border-gray-300" />
                         <span className="mx-4 text-gray-500 text-sm">or sign in with</span>
                         <div className="flex-grow border-t border-gray-300" />
                     </div>
 
-                    {/* Social Login Buttons */}
                     <div className="flex justify-center gap-4 mb-6">
                         <button
                             type="button"
-                            onClick={() => alert("Google Sign In")} // Replace with real logic
+                            onClick={() => alert("Google Sign In")}
                             className="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-100 transition"
                         >
                             <FcGoogle size={20} />
@@ -177,7 +227,7 @@ export default function LoginForm() {
 
                         <button
                             type="button"
-                            onClick={() => alert("Facebook Sign In")} // Replace with real logic
+                            onClick={() => alert("Facebook Sign In")}
                             className="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-100 transition"
                         >
                             <FaFacebook size={20} className="text-[#1877F2]" />
