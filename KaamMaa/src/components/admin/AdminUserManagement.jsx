@@ -8,15 +8,21 @@ import {
     useDeleteAdminUser,
     useCreateAdminUser
 } from '../../hooks/admin/useAdminUser';
+import { useAdminProfession } from '../../hooks/admin/useAdminProfession';
 
 export default function AdminUserManagement() {
     const [showModal, setShowModal] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [selectedUserToDelete, setSelectedUserToDelete] = useState(null);
-    const [selectedRole, setSelectedRole] = useState('');
 
     const [formData, setFormData] = useState({
-        username: '', name: '', email: '', phone: '', role: '', password: ''
+        username: '',
+        name: '',
+        email: '',
+        phone: '',
+        role: '',
+        password: '',
+        profession: '',
     });
 
     const {
@@ -26,6 +32,9 @@ export default function AdminUserManagement() {
 
     const { mutate: deleteUser } = useDeleteAdminUser();
     const { mutate: createUser } = useCreateAdminUser();
+
+    // fetch professions
+    const { professions, isLoading: isProfessionsLoading } = useAdminProfession();
 
     const handlePrev = () => {
         if (pagination.page > 1) setPageNumber(prev => prev - 1);
@@ -44,16 +53,28 @@ export default function AdminUserManagement() {
         e.preventDefault();
         createUser(formData, {
             onSuccess: () => {
-                setFormData({ username: '', name: '', email: '', phone: '', role: '', password: '' });
+                setFormData({
+                    username: '',
+                    name: '',
+                    email: '',
+                    phone: '',
+                    role: '',
+                    password: '',
+                    profession: '',
+                });
                 setShowModal(false);
             }
         });
     };
 
-    const filteredUsers = selectedRole
-        ? users.filter(user => user.role === selectedRole)
+    const filteredUsers = formData.role
+        ? users.filter(user => {
+            // If a role filter is active, filter by role
+            return user.role === formData.role;
+        })
         : users;
 
+    // color coding role badges
     const getRoleColorClass = (role) => {
         switch (role) {
             case 'admin': return 'bg-blue-100 text-blue-700';
@@ -91,8 +112,8 @@ export default function AdminUserManagement() {
                 </div>
                 <select
                     className="border border-gray-300 rounded-md px-3 py-2"
-                    value={selectedRole}
-                    onChange={(e) => setSelectedRole(e.target.value)}
+                    value={formData.role}
+                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                 >
                     <option value="">All Roles</option>
                     <option value="admin">Admin</option>
@@ -111,15 +132,16 @@ export default function AdminUserManagement() {
                             <th className="px-4 py-2">Phone</th>
                             <th className="px-4 py-2">Role</th>
                             <th className="px-4 py-2">Availability</th>
+                            <th className="px-4 py-2">Profession</th>
                             <th className="px-4 py-2">Join Date</th>
                             <th className="px-4 py-2">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {isPending ? (
-                            <tr><td colSpan="8" className="text-center py-6">Loading...</td></tr>
+                            <tr><td colSpan="9" className="text-center py-6">Loading...</td></tr>
                         ) : filteredUsers.length === 0 ? (
-                            <tr><td colSpan="8" className="text-center py-6">No users found</td></tr>
+                            <tr><td colSpan="9" className="text-center py-6">No users found</td></tr>
                         ) : (
                             filteredUsers.map((user) => (
                                 <tr key={user._id} className="border-b">
@@ -136,6 +158,15 @@ export default function AdminUserManagement() {
                                         {user.role === 'worker' ? (
                                             <span className={`px-3 py-1 text-xs rounded-full font-medium ${user.availability ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
                                                 {user.availability ? 'Open to Work' : 'Working'}
+                                            </span>
+                                        ) : (
+                                            <span className="text-gray-400 text-sm">—</span>
+                                        )}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        {user.role === 'worker' ? (
+                                            <span className="text-sm text-gray-700 font-medium">
+                                                {user.profession?.category || '—'}
                                             </span>
                                         ) : (
                                             <span className="text-gray-400 text-sm">—</span>
@@ -214,7 +245,11 @@ export default function AdminUserManagement() {
                     />
                     <select
                         value={formData.role}
-                        onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                        onChange={(e) => setFormData({
+                            ...formData,
+                            role: e.target.value,
+                            profession: '', // reset profession if role changes
+                        })}
                         className="w-full border border-gray-300 rounded-md px-4 py-2"
                         required
                     >
@@ -223,6 +258,27 @@ export default function AdminUserManagement() {
                         <option value="worker">Worker</option>
                         <option value="customer">Customer</option>
                     </select>
+
+                    {formData.role === 'worker' && (
+                        <select
+                            value={formData.profession || ''}
+                            onChange={(e) => setFormData({ ...formData, profession: e.target.value })}
+                            className="w-full border border-gray-300 rounded-md px-4 py-2"
+                            required
+                        >
+                            <option value="">Select Profession</option>
+                            {isProfessionsLoading ? (
+                                <option disabled>Loading professions...</option>
+                            ) : (
+                                professions.map((prof) => (
+                                    <option key={prof._id} value={prof._id}>
+                                        {prof.category}
+                                    </option>
+                                ))
+                            )}
+                        </select>
+                    )}
+
                     <input
                         type="password"
                         placeholder="Password"
