@@ -6,6 +6,13 @@ import MainLayout from '../layouts/worker/MainLayout';
 import AdminUserRoute from './admin/AdminUserRoute';
 import WorkerUserRoute from './worker/WorkerUserRoute';
 import WorkerDashboardPage from '../pages/workers_page/WorkerDashBoardPage';
+import AdminMainLayout from '../layouts/admin/AdminMainLayout';
+import AdminDashboard from '../components/admin/AdminDashboard';
+import AdminUserManagement from '../components/admin/AdminUserManagement';
+import AdminReviewManagement from '../components/admin/AdminReviewManagement';
+import AdminProfessionManagement from '../components/admin/AdminProfessionManagement';
+import AdminVerificationsManagement from '../components/admin/AdminVerificationsManagement';
+import AdminSetting from '../components/admin/AdminSetting';
 
 // Optional: NotFound component for consistency
 const NotFound = () => <div className="text-center text-xl font-bold mt-10">404 Ghar Jaa</div>;
@@ -29,8 +36,16 @@ export default function AppRouter() {
 
         {/* Admin Protected Routes */}
         <Route path="/admin/*" element={<AdminUserRoute />}>
-          <Route path="dashboard" element={<>Admin Dashboard</>} />
-          <Route path="*" element={<NotFound />} />
+          <Route path='dashboard' element={<AdminMainLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<AdminUserManagement />} />
+            <Route path="reviews" element={<AdminReviewManagement />} />
+            <Route path="professions" element={<AdminProfessionManagement />} />
+            <Route path="verifications" element={<AdminVerificationsManagement />} />
+            <Route path="settings" element={<AdminSetting />} />
+
+            <Route path="*" element={<NotFound />} />
+          </Route>
         </Route>
 
         {/* Catch-all fallback (optional) */}
