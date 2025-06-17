@@ -3,7 +3,7 @@ import axios from "../api";
 
 //Create User (Admin only)
 export const createUserApi = async (formData) => {
-    const res = await axios.post("/admin/user/create", formData, {
+    const res = await axios.post("/admin/users/create", formData, {
         headers: {
             "Content-Type": "multipart/form-data"
         }
@@ -12,20 +12,26 @@ export const createUserApi = async (formData) => {
 };
 
 //Get All Users
-export const getAllUsersApi = async () => {
-    const res = await axios.get("/admin/user");
-    return res.data;
+export const getAllUsersApi = async (params) => {
+    const res = await axios.get("/admin/users/", {
+        params: {
+            page: params.page,
+            limit: params.limit,
+            search: params.search || ""
+        }
+    });
+    return res;
 };
 
 // Get One User by ID
 export const getOneUserApi = async (id) => {
-    const res = await axios.get(`/admin/user/${id}`);
+    const res = await axios.get(`/admin/users/${id}`);
     return res.data;
 };
 
 //Update User by ID
 export const updateUserApi = async (id, formData) => {
-    const res = await axios.put(`/admin/user/${id}`, formData, {
+    const res = await axios.put(`/admin/users/${id}`, formData, {
         headers: {
             "Content-Type": "multipart/form-data"
         }
@@ -35,6 +41,6 @@ export const updateUserApi = async (id, formData) => {
 
 // Delete User by ID
 export const deleteUserApi = async (id) => {
-    const res = await axios.delete(`/admin/user/${id}`);
+    const res = await axios.delete(`/admin/users/${id}`);
     return res.data;
 };

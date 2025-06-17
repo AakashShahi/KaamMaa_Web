@@ -7,15 +7,46 @@ import {
     deleteUserService
 } from "../../services/admin/userService";
 import { toast } from "react-toastify";
-import { ADMIN_USERS, ADMIN_USER_DETAIL } from "../../constants/queryKeys";
+import { ADMIN_USERS, ADMIN_USER_DELETE, ADMIN_USER_DETAIL } from "../../constants/queryKeys";
+import { useState } from "react";
 
 // GET all users
-export const useAdminUsers = (page = 1, limit = 5) => {
-    return useQuery({
-        queryKey: [ADMIN_USERS, page, limit],
-        queryFn: () => getAllUsersService({ page, limit }),
-        keepPreviousData: true
-    });
+export const useAdminUsers = () => {
+    const [pageNumber, setPageNumber] = useState(1)
+    const [pageSize, setPageSize] = useState(10)
+    const [search, setSearch] = useState("")
+
+    const query = useQuery(
+        {
+            queryKey: [ADMIN_USERS, pageNumber, pageSize, search],
+            queryFn: () => {
+                return getAllUsersService(
+                    {
+                        page: pageNumber,
+                        limit: pageSize,
+                        search: search
+                    }
+                )
+            },
+        }
+    )
+    const users = query.data?.data || []
+    const pagination = query.data?.pagination || {
+        page: 1, totalPages: 1, limit: 10
+    }
+    const canPreviousPage = pagination.page > 1
+    const canNextPage = pagination.page < pagination.totalPages
+
+    return {
+        ...query,
+        users,
+        pagination,
+        canPreviousPage,
+        canNextPage,
+        setPageNumber,
+        setPageSize,
+        setSearch
+    }
 };
 
 // GET single user detail
@@ -35,7 +66,9 @@ export const useCreateAdminUser = () => {
         mutationFn: createUserService,
         onSuccess: () => {
             toast.success("User created successfully");
-            queryClient.invalidateQueries([ADMIN_USERS]);
+
+            // Fix: match query keys with params
+            queryClient.invalidateQueries({ queryKey: [ADMIN_USERS], exact: false });
         },
         onError: (error) => {
             toast.error(error?.message || "User creation failed");
@@ -66,6 +99,7 @@ export const useDeleteAdminUser = () => {
 
     return useMutation({
         mutationFn: (id) => deleteUserService(id),
+        mutationKey: [ADMIN_USER_DELETE],
         onSuccess: () => {
             toast.success("User deleted successfully");
             queryClient.invalidateQueries([ADMIN_USERS]);
