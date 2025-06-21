@@ -5,6 +5,7 @@ import UpdateProfessionModal from "./modal/UpdateProfessionModal";
 import DeleteProfessionModal from "./modal/DeleteProfessionModal";
 import { getBackendImageUrl } from "../../utils/backend_image";
 import { Pencil, Trash2, Plus } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function AdminProfessionManagement() {
     const { professions, isLoading } = useAdminProfession();
@@ -41,54 +42,45 @@ export default function AdminProfessionManagement() {
             {isLoading ? (
                 <p className="text-gray-600">Loading professions...</p>
             ) : (
-                <div className="overflow-x-auto bg-white shadow rounded-md">
-                    <table className="min-w-full table-auto">
-                        <thead className="bg-gray-100 text-left">
-                            <tr>
-                                <th className="px-4 py-3 text-sm font-semibold">#</th>
-                                <th className="px-4 py-3 text-sm font-semibold">Icon</th>
-                                <th className="px-4 py-3 text-sm font-semibold">Name</th>
-                                <th className="px-4 py-3 text-sm font-semibold">Category</th>
-                                <th className="px-4 py-3 text-sm font-semibold">Description</th>
-                                <th className="px-4 py-3 text-sm font-semibold">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {professions.map((profession, index) => (
-                                <tr key={profession._id} className="border-b hover:bg-gray-50">
-                                    <td className="px-4 py-3 text-sm text-gray-700">{index + 1}</td>
-                                    <td className="px-4 py-3">
-                                        {profession.icon ? (
-                                            <img
-                                                src={getBackendImageUrl(profession.icon)}
-                                                alt="icon"
-                                                className="w-10 h-10 object-cover rounded"
-                                            />
-                                        ) : (
-                                            <span className="text-gray-400 text-sm">No image</span>
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-3 text-sm font-medium">{profession.name}</td>
-                                    <td className="px-4 py-3 text-sm">{profession.category || "—"}</td>
-                                    <td className="px-4 py-3 text-sm">{profession.description || "—"}</td>
-                                    <td className="px-4 py-3 flex gap-2">
-                                        <button
-                                            onClick={() => handleEdit(profession)}
-                                            className="text-blue-600 hover:text-blue-800"
-                                        >
-                                            <Pencil size={18} />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(profession._id)}
-                                            className="text-red-600 hover:text-red-800"
-                                        >
-                                            <Trash2 size={18} />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {professions.map((profession, index) => (
+                        <motion.div
+                            key={profession._id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200 p-4 flex flex-col items-center text-center"
+                        >
+                            {profession.icon ? (
+                                <img
+                                    src={getBackendImageUrl(profession.icon)}
+                                    alt="icon"
+                                    className="w-16 h-16 object-cover rounded mb-3"
+                                />
+                            ) : (
+                                <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-gray-400 mb-3">
+                                    No Image
+                                </div>
+                            )}
+                            <h3 className="text-lg font-semibold text-gray-800 mb-1">{profession.name}</h3>
+                            <p className="text-sm text-gray-500 mb-1">{profession.category || "—"}</p>
+                            <p className="text-sm text-gray-600 mb-3">{profession.description || "—"}</p>
+                            <div className="flex gap-4 mt-auto">
+                                <button
+                                    onClick={() => handleEdit(profession)}
+                                    className="text-blue-600 hover:text-blue-800"
+                                >
+                                    <Pencil size={18} />
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(profession._id)}
+                                    className="text-red-600 hover:text-red-800"
+                                >
+                                    <Trash2 size={18} />
+                                </button>
+                            </div>
+                        </motion.div>
+                    ))}
                 </div>
             )}
 

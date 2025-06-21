@@ -7,15 +7,13 @@ import { AuthContext } from "../auth/AuthProvider";
 export const useLoginUserTan = () => {
     const { login } = useContext(AuthContext)
     return useMutation(
+
         {
             mutationFn: loginUserService,
             mutationKey: ["login-key"],
             onSuccess: (data) => {
                 login(data?.data, data?.token)
                 toast.success(data?.message || "Login Success")
-            },
-            onError: (err) => {
-                toast.error(err?.message || "Login Failed")
             }
         }
     )

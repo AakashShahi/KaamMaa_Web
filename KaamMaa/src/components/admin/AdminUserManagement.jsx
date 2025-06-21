@@ -14,26 +14,15 @@ export default function AdminUserManagement() {
     const [showModal, setShowModal] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [selectedUserToDelete, setSelectedUserToDelete] = useState(null);
-
-    const [formData, setFormData] = useState({
-        username: '',
-        name: '',
-        email: '',
-        phone: '',
-        role: '',
-        password: '',
-        profession: '',
-    });
+    const [roleFilter, setRoleFilter] = useState('');
 
     const {
-        users, setPageNumber, error, pagination,
+        users, setPageNumber, pagination,
         isPending, canPreviousPage, canNextPage, setSearch
     } = useAdminUsers();
 
     const { mutate: deleteUser } = useDeleteAdminUser();
     const { mutate: createUser } = useCreateAdminUser();
-
-    // fetch professions
     const { professions, isLoading: isProfessionsLoading } = useAdminProfession();
 
     const handlePrev = () => {
@@ -49,71 +38,54 @@ export default function AdminUserManagement() {
         setSearch(e.target.value);
     };
 
-    const handleCreateUser = (e) => {
-        e.preventDefault();
-        createUser(formData, {
-            onSuccess: () => {
-                setFormData({
-                    username: '',
-                    name: '',
-                    email: '',
-                    phone: '',
-                    role: '',
-                    password: '',
-                    profession: '',
-                });
-                setShowModal(false);
-            }
-        });
-    };
-
-    const filteredUsers = formData.role
-        ? users.filter(user => {
-            // If a role filter is active, filter by role
-            return user.role === formData.role;
-        })
+    const filteredUsers = roleFilter
+        ? users.filter(user => user.role === roleFilter)
         : users;
 
-    // color coding role badges
     const getRoleColorClass = (role) => {
         switch (role) {
-            case 'admin': return 'bg-blue-100 text-blue-700';
-            case 'worker': return 'bg-orange-100 text-orange-700';
-            case 'customer': return 'bg-purple-100 text-purple-700';
-            default: return 'bg-gray-200 text-gray-800';
+            case 'admin':
+                return 'bg-blue-100 text-blue-700';
+            case 'worker':
+                return 'bg-orange-100 text-orange-700';
+            case 'customer':
+                return 'bg-purple-100 text-purple-700';
+            default:
+                return 'bg-gray-200 text-gray-800';
         }
     };
 
     return (
         <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h2 className="text-2xl font-bold">User Management</h2>
-                    <p className="text-sm text-gray-500">Manage workers and customers</p>
+                    <h2 className="text-3xl font-bold text-gray-800">User Management</h2>
+                    <p className="text-sm text-gray-500">Manage admins, workers, and customers</p>
                 </div>
                 <button
-                    className="bg-[#FA5804] text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-orange-600"
                     onClick={() => setShowModal(true)}
+                    className="flex items-center gap-2 bg-[#FA5804] hover:bg-orange-600 text-white font-medium px-4 py-2 rounded-lg shadow transition"
                 >
-                    <HiOutlinePlus size={18} /> Add User
+                    <HiOutlinePlus size={20} /> Add User
                 </button>
             </div>
 
             {/* Filters */}
-            <div className="flex gap-3 mb-4">
-                <div className="relative w-full">
+            <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                <div className="relative w-full sm:w-1/2">
                     <input
                         type="text"
                         placeholder="Search users..."
                         onChange={handleSearch}
-                        className="w-full border border-gray-300 rounded-md py-2 pl-10 pr-3"
+                        className="w-full border border-gray-300 rounded-md py-2 pl-10 pr-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
                     />
                     <FaSearch className="absolute left-3 top-3 text-gray-400" />
                 </div>
                 <select
-                    className="border border-gray-300 rounded-md px-3 py-2"
-                    value={formData.role}
-                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                    value={roleFilter}
+                    onChange={(e) => setRoleFilter(e.target.value)}
+                    className="border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
                 >
                     <option value="">All Roles</option>
                     <option value="admin">Admin</option>
@@ -122,181 +94,82 @@ export default function AdminUserManagement() {
                 </select>
             </div>
 
-            <div className="bg-white rounded-md shadow-sm overflow-auto">
-                <table className="min-w-full text-sm">
-                    <thead className="bg-gray-100 text-gray-600 text-left">
-                        <tr>
-                            <th className="px-4 py-2">Username</th>
-                            <th className="px-4 py-2">Name</th>
-                            <th className="px-4 py-2">Email</th>
-                            <th className="px-4 py-2">Phone</th>
-                            <th className="px-4 py-2">Role</th>
-                            <th className="px-4 py-2">Availability</th>
-                            <th className="px-4 py-2">Profession</th>
-                            <th className="px-4 py-2">Join Date</th>
-                            <th className="px-4 py-2">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {isPending ? (
-                            <tr><td colSpan="9" className="text-center py-6">Loading...</td></tr>
-                        ) : filteredUsers.length === 0 ? (
-                            <tr><td colSpan="9" className="text-center py-6">No users found</td></tr>
-                        ) : (
-                            filteredUsers.map((user) => (
-                                <tr key={user._id} className="border-b">
-                                    <td className="px-4 py-3 font-semibold">{user.username}</td>
-                                    <td className="px-4 py-3">{user.name || '-'}</td>
-                                    <td className="px-4 py-3">{user.email}</td>
-                                    <td className="px-4 py-3">{user.phone || '-'}</td>
-                                    <td className="px-4 py-3">
-                                        <span className={`px-3 py-1 text-xs rounded-full font-semibold ${getRoleColorClass(user.role)}`}>
-                                            {user.role}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        {user.role === 'worker' ? (
-                                            <span className={`px-3 py-1 text-xs rounded-full font-medium ${user.availability ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                                                {user.availability ? 'Open to Work' : 'Working'}
-                                            </span>
-                                        ) : (
-                                            <span className="text-gray-400 text-sm">—</span>
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        {user.role === 'worker' ? (
-                                            <span className="text-sm text-gray-700 font-medium">
-                                                {user.profession?.category || '—'}
-                                            </span>
-                                        ) : (
-                                            <span className="text-gray-400 text-sm">—</span>
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-3">{new Date(user.createdAt).toLocaleDateString()}</td>
-                                    <td className="px-4 py-3">
-                                        <FaTrash
-                                            onClick={() => {
-                                                setSelectedUserToDelete(user);
-                                                setDeleteModalOpen(true);
-                                            }}
-                                            className="text-red-500 hover:text-red-700 cursor-pointer"
-                                        />
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+            {/* Users Grid */}
+            {isPending ? (
+                <div className="text-center py-10 text-gray-500">Loading...</div>
+            ) : filteredUsers.length === 0 ? (
+                <div className="text-center py-10 text-gray-500">No users found</div>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredUsers.map(user => (
+                        <div
+                            key={user._id}
+                            className="bg-white shadow-md rounded-xl p-5 group hover:shadow-lg transition-all duration-300"
+                        >
+                            <div className="flex items-center justify-between mb-3">
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-800">{user.username}</h3>
+                                    <p className="text-sm text-gray-500">{user.email}</p>
+                                </div>
+                                <span
+                                    className={`text-xs font-medium px-3 py-1 rounded-full ${getRoleColorClass(user.role)}`}
+                                >
+                                    {user.role}
+                                </span>
+                            </div>
+
+                            <div className="text-sm text-gray-600 space-y-1">
+                                <p><strong>Profession:</strong> {user.profession?.category || '—'}</p>
+                                <p><strong>Joined:</strong> {new Date(user.createdAt).toLocaleDateString()}</p>
+                            </div>
+
+                            <div className="mt-4 flex justify-end">
+                                <button
+                                    onClick={() => {
+                                        setSelectedUserToDelete(user);
+                                        setDeleteModalOpen(true);
+                                    }}
+                                    className="text-red-500 hover:text-red-700 transition"
+                                    title="Delete user"
+                                >
+                                    <FaTrash />
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
             {/* Pagination */}
-            <div className="mt-4 flex justify-between items-center text-sm">
+            <div className="mt-6 flex items-center justify-between text-sm">
                 <button
                     onClick={handlePrev}
                     disabled={!canPreviousPage}
-                    className="px-4 py-2 border rounded disabled:opacity-50"
+                    className="px-4 py-2 border rounded disabled:opacity-50 hover:bg-gray-100"
                 >
                     Previous
                 </button>
                 <span>
-                    Page {pagination.page} of {pagination.totalPages}
+                    Page <strong>{pagination.page}</strong> of <strong>{pagination.totalPages}</strong>
                 </span>
                 <button
                     onClick={handleNext}
                     disabled={!canNextPage}
-                    className="px-4 py-2 border rounded disabled:opacity-50"
+                    className="px-4 py-2 border rounded disabled:opacity-50 hover:bg-gray-100"
                 >
                     Next
                 </button>
             </div>
 
-            {/* Create Modal */}
-            <AdminAddUserModal isOpen={showModal} onClose={() => setShowModal(false)} title="Add New User">
-                <form className="space-y-4" onSubmit={handleCreateUser}>
-                    <input
-                        type="text"
-                        placeholder="Username"
-                        value={formData.username}
-                        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                        className="w-full border border-gray-300 rounded-md px-4 py-2"
-                        required
-                    />
-                    <input
-                        type="text"
-                        placeholder="Name"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full border border-gray-300 rounded-md px-4 py-2"
-                    />
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full border border-gray-300 rounded-md px-4 py-2"
-                        required
-                    />
-                    <input
-                        type="text"
-                        placeholder="Phone"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className="w-full border border-gray-300 rounded-md px-4 py-2"
-                    />
-                    <select
-                        value={formData.role}
-                        onChange={(e) => setFormData({
-                            ...formData,
-                            role: e.target.value,
-                            profession: '', // reset profession if role changes
-                        })}
-                        className="w-full border border-gray-300 rounded-md px-4 py-2"
-                        required
-                    >
-                        <option value="">Select Role</option>
-                        <option value="admin">Admin</option>
-                        <option value="worker">Worker</option>
-                        <option value="customer">Customer</option>
-                    </select>
+            {/* Modals */}
+            <AdminAddUserModal
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                onSubmit={createUser}
+                professions={professions}
+                isLoading={isProfessionsLoading}
+            />
 
-                    {formData.role === 'worker' && (
-                        <select
-                            value={formData.profession || ''}
-                            onChange={(e) => setFormData({ ...formData, profession: e.target.value })}
-                            className="w-full border border-gray-300 rounded-md px-4 py-2"
-                            required
-                        >
-                            <option value="">Select Profession</option>
-                            {isProfessionsLoading ? (
-                                <option disabled>Loading professions...</option>
-                            ) : (
-                                professions.map((prof) => (
-                                    <option key={prof._id} value={prof._id}>
-                                        {prof.category}
-                                    </option>
-                                ))
-                            )}
-                        </select>
-                    )}
-
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        value={formData.password}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        className="w-full border border-gray-300 rounded-md px-4 py-2"
-                        required
-                    />
-                    <button
-                        type="submit"
-                        className="w-full bg-[#FA5804] text-white py-2 rounded-md hover:bg-orange-600 font-medium"
-                    >
-                        Create User
-                    </button>
-                </form>
-            </AdminAddUserModal>
-
-            {/* Delete Modal */}
             <AdminDeleteUserModal
                 isOpen={deleteModalOpen}
                 user={selectedUserToDelete}
