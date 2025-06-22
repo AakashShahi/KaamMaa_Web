@@ -1,137 +1,167 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { FaUserCircle, FaEllipsisV } from 'react-icons/fa';
-import { NavLink, Link, useNavigate } from 'react-router-dom';
-import logo from '../../assets/logo/kaammaa_logo.png';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { FaBell } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import logo from '../../assets/logo/kaammaa_logo.png';
+import { AuthContext } from "../../auth/AuthProvider";
 
 export default function Header() {
-    const [showMenu, setShowMenu] = useState(false);
-    const [showConfirmLogout, setShowConfirmLogout] = useState(false);
-    const menuRef = useRef(null);
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const profileRef = useRef(null);
     const navigate = useNavigate();
+    const { logout, user } = useContext(AuthContext);
 
-    // Close dropdown when clicked outside
     useEffect(() => {
         const handleClickOutside = (e) => {
-            if (menuRef.current && !menuRef.current.contains(e.target)) {
-                setShowMenu(false);
+            if (profileRef.current && !profileRef.current.contains(e.target)) {
+                setShowDropdown(false);
             }
         };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const handleLogout = () => {
-        setShowConfirmLogout(true)
-
-    };
-
     const confirmLogout = () => {
-        setShowConfirmLogout(false);
-        toast.success('Logout successful!');
+        toast.success("Logout successful!");
+        setShowLogoutModal(false);
+        logout();
         navigate('/login');
     };
 
     return (
-        <header className="w-full relative z-50 flex items-center justify-between px-6 py-3 shadow-sm bg-white">
-            {/* Left Section */}
-            <div className="flex items-center gap-10">
-                <div className="flex items-center gap-2">
-                    <img src={logo} alt="KaamMaa Logo" className="h-8 w-auto" />
+        <>
+            <header className="w-full bg-white shadow-sm flex items-center justify-between px-6 py-3 z-50 font-Inter">
+                {/* Logo */}
+                <div className="flex items-center gap-3">
+                    <img src={logo} alt="KaamMaa Logo" className="w-8 h-8 rounded-md object-contain" />
+                    <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">
+                        <span>Kaam</span><span className="text-[#FA5804]">Maa</span>
+                    </h1>
                 </div>
 
                 {/* Navigation */}
-                <nav className="hidden md:flex items-center gap-10 text-[15px] font-semibold">
+                <nav className="flex items-center gap-8 text-[15px] font-medium">
                     <NavLink
-                        to="/dashboard"
+                        to="/worker/dashboard"
                         className={({ isActive }) =>
-                            `transform transition-transform duration-200 hover:scale-105 ${isActive
-                                ? 'text-[#FA5804] border-b-2 border-[#FA5804] pb-1'
-                                : 'text-gray-700 hover:text-[#FA5804] pb-1'
+                            `rounded-full px-4 py-1.5 text-white font-semibold transition 
+                            ${isActive
+                                ? 'bg-gradient-to-r from-[#FA5804] to-[#f43f5e]'
+                                : 'text-gray-700 hover:text-[#FA5804]'
                             }`
                         }
                     >
                         Home
                     </NavLink>
-                    <Link className="text-gray-700 hover:text-[#FA5804] hover:scale-105 transition-transform duration-200 pb-1">
+                    <NavLink
+                        to="/worker/jobs"
+                        className={({ isActive }) =>
+                            `pb-1 transition ${isActive
+                                ? 'text-[#FA5804] border-b-2 border-[#FA5804]'
+                                : 'text-gray-700 hover:text-[#FA5804]'
+                            }`
+                        }
+                    >
                         Jobs List
-                    </Link>
-                    <Link className="text-gray-700 hover:text-[#FA5804] hover:scale-105 transition-transform duration-200 pb-1">
+                    </NavLink>
+                    <NavLink
+                        to="/worker/my-jobs"
+                        className={({ isActive }) =>
+                            `pb-1 transition ${isActive
+                                ? 'text-[#FA5804] border-b-2 border-[#FA5804]'
+                                : 'text-gray-700 hover:text-[#FA5804]'
+                            }`
+                        }
+                    >
                         My Jobs
-                    </Link>
-                    <Link className="text-gray-700 hover:text-[#FA5804] hover:scale-105 transition-transform duration-200 pb-1">
+                    </NavLink>
+                    <NavLink
+                        to="/worker/search"
+                        className={({ isActive }) =>
+                            `pb-1 transition ${isActive
+                                ? 'text-[#FA5804] border-b-2 border-[#FA5804]'
+                                : 'text-gray-700 hover:text-[#FA5804]'
+                            }`
+                        }
+                    >
                         Search
-                    </Link>
+                    </NavLink>
                 </nav>
-            </div>
 
-            {/* Right Section */}
-            <div className="flex items-center gap-3 relative" ref={menuRef}>
-                <FaUserCircle className="text-2xl text-black" />
-                <span className="text-[#FA5804] font-medium">David</span>
-                <FaEllipsisV
-                    className="text-xl text-black cursor-pointer hover:text-[#FA5804]"
-                    onClick={() => setShowMenu(!showMenu)}
-                />
-
-                {/* Dropdown */}
-                {showMenu && (
-                    <div className="absolute right-0 top-14 w-48 bg-white shadow-md rounded-lg py-2 border z-50">
-                        <Link
-                            to="/dashboard/profile"
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            onClick={() => setShowMenu(false)}
-                        >
-                            View Profile
-                        </Link>
-                        <Link
-                            to="/dashboard/my-jobs"
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            onClick={() => setShowMenu(false)}
-                        >
-                            My Jobs
-                        </Link>
-                        <Link
-                            to="/dashboard/settings"
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            onClick={() => setShowMenu(false)}
-                        >
-                            Settings
-                        </Link>
-                        <button
-                            onClick={handleLogout}
-                            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                        >
-                            Logout
-                        </button>
+                {/* Right Profile & Notification */}
+                <div className="flex items-center gap-4 relative" ref={profileRef}>
+                    <div className="relative">
+                        <FaBell className="text-gray-600 text-lg cursor-pointer hover:text-[#FA5804]" />
+                        <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-pink-500"></span>
                     </div>
-                )}
-            </div>
 
-            {/* Logout Confirmation Modal */}
-            {showConfirmLogout && (
-                <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg p-6 shadow-lg w-[90%] max-w-sm">
-                        <h2 className="text-lg font-semibold mb-4">Confirm Logout</h2>
-                        <p className="mb-6 text-sm text-gray-600">Are you sure you want to logout?</p>
-                        <div className="flex justify-end gap-4">
+                    <div
+                        onClick={() => setShowDropdown(prev => !prev)}
+                        className="flex items-center gap-3 cursor-pointer bg-orange-50 border border-orange-200 px-3 py-1 rounded-full hover:shadow transition"
+                    >
+                        <div className="w-7 h-7 rounded-full bg-gray-200 shadow-inner flex items-center justify-center">
+                            <img
+                                alt="User Avatar"
+                                className="w-full h-full object-cover rounded-full"
+                            />
+                        </div>
+                        <div className="flex flex-col leading-tight">
+                            <span className="text-sm font-medium text-gray-800">{user?.name || "User"}</span>
+                            <span className="text-[11px] text-green-500 font-semibold">● Online</span>
+                        </div>
+                    </div>
+
+                    {/* Dropdown */}
+                    {showDropdown && (
+                        <div className="absolute top-14 right-0 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                             <button
-                                onClick={() => setShowConfirmLogout(false)}
-                                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-sm"
+                                onClick={() => {
+                                    setShowDropdown(false);
+                                    navigate('/profile/settings');
+                                }}
+                                className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                            >
+                                Profile Settings
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setShowDropdown(false);
+                                    setShowLogoutModal(true);
+                                }}
+                                className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+                            >
+                                Logout
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </header>
+
+            {/* Logout Modal */}
+            {showLogoutModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-xl shadow-lg w-[90%] max-w-sm">
+                        <h2 className="text-lg font-bold mb-4 text-gray-800">Confirm Logout</h2>
+                        <p className="text-sm text-gray-600 mb-6">Are you sure you want to logout?</p>
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => setShowLogoutModal(false)}
+                                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-gray-800"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={confirmLogout}
-                                className="px-4 py-2 rounded bg-red-500 hover:bg-red-600 text-white text-sm"
+                                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                             >
-                                Yes, Logout
+                                Logout
                             </button>
                         </div>
                     </div>
                 </div>
             )}
-        </header>
+        </>
     );
 }

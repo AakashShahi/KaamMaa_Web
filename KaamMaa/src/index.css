@@ -28,6 +28,18 @@ body,
   font-family: 'Inter', sans-serif;
 }
 
+.react-calendar.custom-calendar {
+  width: 100%;
+  border: none;
+  font-family: Inter, sans-serif;
+  line-height: 1.6;
+}
+
+.react-calendar__tile--active {
+  background-color: #FA5804 !important;
+  color: white !important;
+}
+
 /* Avoid centering the entire layout */
 body {
   display: block;

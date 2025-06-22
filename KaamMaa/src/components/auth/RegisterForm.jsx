@@ -49,6 +49,9 @@ export default function RegisterForm() {
     const validationSchema = Yup.object({
         username: Yup.string().min(6, "Min 6 characters").max(20, "Max 20 characters").required("Username required"),
         email: Yup.string().email("Invalid email").required("Email required"),
+        phone: Yup.string()
+            .matches(/^[9][7-8][0-9]{8}$/, "Invalid Nepali phone number")
+            .required("Phone number required"),
         password: Yup.string().min(8, "Min 8 characters").required("Password required"),
         confirmPassword: Yup.string().oneOf([Yup.ref('password')], 'Passwords must match').required('Confirm Password required'),
     });
@@ -57,6 +60,7 @@ export default function RegisterForm() {
         initialValues: {
             username: "",
             email: "",
+            phone: "",
             password: "",
             confirmPassword: "",
             role: "worker",
@@ -145,6 +149,30 @@ export default function RegisterForm() {
                             </div>
                             {isInvalid("email") && (
                                 <p className="text-sm text-red-500 mt-1">{formik.errors.email}</p>
+                            )}
+                        </div>
+
+                        {/* Phone Number */}
+                        <div className="relative">
+                            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone</label>
+                            <div className="relative">
+                                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 text-sm">
+                                    🇳🇵 +977
+                                </span>
+                                <input
+                                    type="text"
+                                    name="phone"
+                                    id="phone"
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    value={formik.values.phone}
+                                    placeholder="98XXXXXXXX"
+                                    className="w-full pl-20 pr-10 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-[#FA5804] focus:outline-none"
+                                />
+                                {renderValidationIcon("phone")}
+                            </div>
+                            {isInvalid("phone") && (
+                                <p className="text-sm text-red-500 mt-1">{formik.errors.phone}</p>
                             )}
                         </div>
 
