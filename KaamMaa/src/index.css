@@ -40,6 +40,29 @@ body,
   color: white !important;
 }
 
+.react-calendar .react-calendar__tile.bg-\[\#FA5804\] {
+  background-color: #FA5804 !important;
+  color: white !important;
+  border-radius: 50%;
+}
+
+.react-calendar .react-calendar__tile.bg-\[\#FA5804\]:hover {
+  background-color: #e45500 !important;
+  /* Slightly darker orange on hover */
+  color: white !important;
+}
+
+.react-calendar__tile--highlight {
+  background-color: #FA5804 !important;
+  color: white !important;
+  border-radius: 50%;
+}
+
+.react-calendar__tile--highlight:hover {
+  background-color: #e45500 !important;
+  color: white !important;
+}
+
 /* Avoid centering the entire layout */
 body {
   display: block;
