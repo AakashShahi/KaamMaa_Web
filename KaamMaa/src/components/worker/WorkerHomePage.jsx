@@ -106,7 +106,7 @@ export default function WorkerHomePage() {
                 <div className="bg-white border-l-4 border-yellow-400 shadow-md rounded-2xl p-6 hover:shadow-lg transition-all flex items-center gap-4">
                     <FaClock className="text-yellow-500 text-3xl" />
                     <div>
-                        <h4 className="text-3xl font-bold text-yellow-500">5</h4>
+                        <h4 className="text-3xl font-bold text-yellow-500">{jobList.length}</h4>
                         <p className="text-sm text-gray-700 mt-1">Jobs Pending</p>
                     </div>
                 </div>

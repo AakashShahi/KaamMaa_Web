@@ -8,8 +8,20 @@ export const ADMIN_PROFESSION_DELETE = "admin_profession_delete"
 export const ADMIN_PROFESSION_CREATE = "admin_profession_create"
 export const ADMIN_PROFESSION_UPDATE = "admin_profession_upadte"
 
-//Worker Key
+//Worker Job Key
 export const WORKER_IN_PROGRESS_JOB = "worker_in_progress_job"
+
+//Worker Profile Key
+export const WORKER_PROFILE = "worker-profile"
+export const WORKER_UPDATE_PROFILE = "worker-profile-update"
+export const WORKER_CHANGE_PASSWORD = "worker-password-update"
+
+//Worker Profession KEy
+export const WORKER_PROFESSION = "worker_profession"
+
+
+
+
 
 
 

@@ -13,6 +13,10 @@ import AdminReviewManagement from '../components/admin/AdminReviewManagement';
 import AdminProfessionManagement from '../components/admin/AdminProfessionManagement';
 import AdminVerificationsManagement from '../components/admin/AdminVerificationsManagement';
 import AdminSetting from '../components/admin/AdminSetting';
+import WorkerJobListPage from '../pages/workers_page/WorkerJobListPage';
+import WorkerJobsPage from '../pages/workers_page/WorkerJobsPage';
+import WorkerSearchPage from '../pages/workers_page/WorkerSearchPage';
+import WorkerProfilePage from '../pages/workers_page/WorkerProfilePage';
 
 // Optional: NotFound component for consistency
 const NotFound = () => <div className="text-center text-xl font-bold mt-10">404 Ghar Jaa</div>;
@@ -30,6 +34,10 @@ export default function AppRouter() {
         <Route path="/worker/*" element={<WorkerUserRoute />}>
           <Route path="dashboard" element={<MainLayout />}>
             <Route index element={<WorkerDashboardPage />} />
+            <Route path='jobs' element={<WorkerJobListPage />} />
+            <Route path='myjobs' element={<WorkerJobsPage />} />
+            <Route path='search' element={<WorkerSearchPage />} />
+            <Route path='profile' element={<WorkerProfilePage />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Route>

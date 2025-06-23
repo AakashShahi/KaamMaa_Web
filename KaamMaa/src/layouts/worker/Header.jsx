@@ -35,59 +35,31 @@ export default function Header() {
             <header className="w-full bg-white shadow-sm flex items-center justify-between px-6 py-3 z-50 font-Inter">
                 {/* Logo */}
                 <div className="flex items-center gap-3">
-                    <img src={logo} alt="KaamMaa Logo" className="w-8 h-8 rounded-md object-contain" />
-                    <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">
-                        <span>Kaam</span><span className="text-[#FA5804]">Maa</span>
-                    </h1>
+                    <img src={logo} alt="KaamMaa Logo" className="w-15 h-14 rounded-md object-contain" />
                 </div>
 
                 {/* Navigation */}
-                <nav className="flex items-center gap-8 text-[15px] font-medium">
-                    <NavLink
-                        to="/worker/dashboard"
-                        className={({ isActive }) =>
-                            `rounded-full px-4 py-1.5 text-white font-semibold transition 
-                            ${isActive
-                                ? 'bg-gradient-to-r from-[#FA5804] to-[#f43f5e]'
-                                : 'text-gray-700 hover:text-[#FA5804]'
-                            }`
-                        }
-                    >
-                        Home
-                    </NavLink>
-                    <NavLink
-                        to="/worker/jobs"
-                        className={({ isActive }) =>
-                            `pb-1 transition ${isActive
-                                ? 'text-[#FA5804] border-b-2 border-[#FA5804]'
-                                : 'text-gray-700 hover:text-[#FA5804]'
-                            }`
-                        }
-                    >
-                        Jobs List
-                    </NavLink>
-                    <NavLink
-                        to="/worker/my-jobs"
-                        className={({ isActive }) =>
-                            `pb-1 transition ${isActive
-                                ? 'text-[#FA5804] border-b-2 border-[#FA5804]'
-                                : 'text-gray-700 hover:text-[#FA5804]'
-                            }`
-                        }
-                    >
-                        My Jobs
-                    </NavLink>
-                    <NavLink
-                        to="/worker/search"
-                        className={({ isActive }) =>
-                            `pb-1 transition ${isActive
-                                ? 'text-[#FA5804] border-b-2 border-[#FA5804]'
-                                : 'text-gray-700 hover:text-[#FA5804]'
-                            }`
-                        }
-                    >
-                        Search
-                    </NavLink>
+                <nav className="flex items-center gap-6 text-[15px] font-medium">
+                    {[
+                        { to: "/worker/dashboard", label: "Home", exact: true },
+                        { to: "/worker/dashboard/jobs", label: "Jobs List" },
+                        { to: "/worker/dashboard/myjobs", label: "My Jobs" },
+                        { to: "/worker/dashboard/search", label: "Search" },
+                    ].map(({ to, label, exact }) => (
+                        <NavLink
+                            key={to}
+                            to={to}
+                            end={exact}
+                            className={({ isActive }) =>
+                                `px-4 py-1.5 rounded-full transition font-semibold ${isActive
+                                    ? "text-white bg-gradient-to-r from-[#FA5804] to-[#f43f5e]"
+                                    : "text-gray-700 hover:text-[#FA5804]"
+                                }`
+                            }
+                        >
+                            {label}
+                        </NavLink>
+                    ))}
                 </nav>
 
                 {/* Right Profile & Notification */}
@@ -119,7 +91,7 @@ export default function Header() {
                             <button
                                 onClick={() => {
                                     setShowDropdown(false);
-                                    navigate('/profile/settings');
+                                    navigate('/worker/dashboard/profile');
                                 }}
                                 className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
                             >

@@ -9,7 +9,7 @@ export default function Footer() {
         {/* Left Section - Logo and Info */}
         <div>
           <div className="flex items-center gap-2 mb-4">
-            <img src={logo} alt="KaamMaa Logo" className="w-10 h-10 rounded-full" />
+            <img src={logo} alt="KaamMaa Logo" className="w-8 h-5 rounded-full" />
             <h1 className="text-xl font-bold">
               <span className="text-white">Kaam</span><span className="text-[#FA5804]">Maa</span>
             </h1>
