@@ -10,6 +10,7 @@ export const ADMIN_PROFESSION_UPDATE = "admin_profession_upadte"
 
 //Worker Job Key
 export const WORKER_IN_PROGRESS_JOB = "worker_in_progress_job"
+export const WORKER_PUBLIC_JOB = "worker_public_job"
 
 //Worker Profile Key
 export const WORKER_PROFILE = "worker-profile"
@@ -18,6 +19,7 @@ export const WORKER_CHANGE_PASSWORD = "worker-password-update"
 
 //Worker Profession KEy
 export const WORKER_PROFESSION = "worker_profession"
+
 
 
 

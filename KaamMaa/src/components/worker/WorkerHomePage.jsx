@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Calendar } from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { motion } from "framer-motion";
-import { FaArrowRight, FaCheckCircle, FaClock } from "react-icons/fa";
+import { FaArrowRight, FaCheckCircle, FaClock, FaBriefcase } from "react-icons/fa";
 import { MdCalendarToday } from "react-icons/md";
 import Lottie from "lottie-react";
 import { getBackendImageUrl } from "../../utils/backend_image";
 
-import { useWorkerInProgressJob } from "../../hooks/worker/useWorkerJob";
+import { useWorkerInProgressJob, useWorkerPublicJob } from "../../hooks/worker/useWorkerJob";
 
 import worker1 from "../../assets/lottie/worker1.json";
 import worker2 from "../../assets/lottie/worker2.json";
@@ -18,6 +18,8 @@ export default function WorkerHomePage() {
     const today = new Date();
 
     const { inProgressJobs: jobList, isLoading, isError } = useWorkerInProgressJob();
+    const { publicJobs = [], isLoading: isPublicLoading } = useWorkerPublicJob({ page: 1, limit: 1000 });
+    const openJobCount = publicJobs.length;
 
     // Normalize date string to YYYY-MM-DD (timezone safe)
     const toISODate = (date) => {
@@ -95,7 +97,17 @@ export default function WorkerHomePage() {
             </section>
 
             {/* Dashboard */}
-            <section className="max-w-7xl mx-auto mt-12 grid grid-cols-1 sm:grid-cols-2 gap-6 text-center">
+
+            <section className="max-w-7xl mx-auto mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+                <div className="bg-white border-l-4 border-blue-500 shadow-md rounded-2xl p-6 hover:shadow-lg transition-all flex items-center gap-4">
+                    <FaBriefcase className="text-blue-600 text-3xl" />
+                    <div>
+                        <h4 className="text-3xl font-bold text-blue-600">
+                            {isPublicLoading ? "..." : openJobCount}
+                        </h4>
+                        <p className="text-sm text-gray-700 mt-1">Open Jobs</p>
+                    </div>
+                </div>
                 <div className="bg-white border-l-4 border-green-500 shadow-md rounded-2xl p-6 hover:shadow-lg transition-all flex items-center gap-4">
                     <FaCheckCircle className="text-green-600 text-3xl" />
                     <div>
