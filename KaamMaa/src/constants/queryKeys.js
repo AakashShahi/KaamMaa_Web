@@ -11,6 +11,9 @@ export const ADMIN_PROFESSION_UPDATE = "admin_profession_upadte"
 //Worker Job Key
 export const WORKER_IN_PROGRESS_JOB = "worker_in_progress_job"
 export const WORKER_PUBLIC_JOB = "worker_public_job"
+export const WORKER_REQUESTED_JOB = "worker_requested_job"
+export const WORKER_ASSIGNED_JOB = "worker_assigned_job"
+export const WORKER_COMPLETED_JOB = "worker-completed-job";
 
 //Worker Profile Key
 export const WORKER_PROFILE = "worker-profile"

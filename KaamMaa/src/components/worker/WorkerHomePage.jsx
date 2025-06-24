@@ -6,8 +6,10 @@ import { FaArrowRight, FaCheckCircle, FaClock, FaBriefcase } from "react-icons/f
 import { MdCalendarToday } from "react-icons/md";
 import Lottie from "lottie-react";
 import { getBackendImageUrl } from "../../utils/backend_image";
+import { useNavigate } from "react-router-dom";
 
-import { useWorkerInProgressJob, useWorkerPublicJob } from "../../hooks/worker/useWorkerJob";
+
+import { useWorkerInProgressJob, useWorkerPublicJob, useWorkerCompletedJob } from "../../hooks/worker/useWorkerJob";
 
 import worker1 from "../../assets/lottie/worker1.json";
 import worker2 from "../../assets/lottie/worker2.json";
@@ -16,9 +18,14 @@ import worker3 from "../../assets/lottie/worker3.json";
 export default function WorkerHomePage() {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const today = new Date();
-
+    const navigate = useNavigate();
     const { inProgressJobs: jobList, isLoading, isError } = useWorkerInProgressJob();
     const { publicJobs = [], isLoading: isPublicLoading } = useWorkerPublicJob({ page: 1, limit: 1000 });
+    const {
+        completedJobs = [],
+        isLoading: isCompletedLoading,
+        isError: isCompletedError
+    } = useWorkerCompletedJob({ page: 1, limit: 1000 });
     const openJobCount = publicJobs.length;
 
     // Normalize date string to YYYY-MM-DD (timezone safe)
@@ -89,7 +96,7 @@ export default function WorkerHomePage() {
                         Update your skills and availability, view nearby job posts, accept and manage work, and track your ratings — all in one place.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start">
-                        <button className="flex items-center gap-2 bg-[#FA5804] text-white px-6 py-2.5 rounded-full hover:bg-black transition-all text-sm shadow-md">
+                        <button onClick={() => navigate("/worker/dashboard/myjobs")} className="flex items-center gap-2 bg-[#FA5804] text-white px-6 py-2.5 rounded-full hover:bg-black transition-all text-sm shadow-md">
                             Take me to Jobs <FaArrowRight />
                         </button>
                     </div>
@@ -111,7 +118,9 @@ export default function WorkerHomePage() {
                 <div className="bg-white border-l-4 border-green-500 shadow-md rounded-2xl p-6 hover:shadow-lg transition-all flex items-center gap-4">
                     <FaCheckCircle className="text-green-600 text-3xl" />
                     <div>
-                        <h4 className="text-3xl font-bold text-green-600">17</h4>
+                        <h4 className="text-3xl font-bold text-green-600">
+                            {isCompletedLoading ? "..." : completedJobs.length}
+                        </h4>
                         <p className="text-sm text-gray-700 mt-1">Jobs Completed</p>
                     </div>
                 </div>

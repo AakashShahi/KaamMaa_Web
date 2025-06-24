@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { useWorkerPublicJob } from "../../hooks/worker/useWorkerJob";
-import { useWorkerProfession } from "../../hooks/worker/useWorkerProfession";
+import { useWorkerPublicJob, useRequestPublicJob } from "../../hooks/worker/useWorkerJob";
 import { FaMapMarkerAlt, FaClock, FaBriefcase, FaSearch } from "react-icons/fa";
 import { getBackendImageUrl } from "../../utils/backend_image";
 import { motion } from "framer-motion";
@@ -11,12 +10,18 @@ export default function WorkerJobList() {
     const [location, setLocation] = useState("");
     const [category, setCategory] = useState("");
     const [queryParams, setQueryParams] = useState({});
+    const [selectedJob, setSelectedJob] = useState(null);
 
     const { publicJobs, isLoading, isError, pagination } = useWorkerPublicJob({
         page,
         limit: 5,
         ...queryParams,
     });
+
+    const {
+        mutate: requestJob,
+        isLoading: isRequesting,
+    } = useRequestPublicJob();
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
@@ -26,6 +31,14 @@ export default function WorkerJobList() {
             location: location.trim(),
             category: category.trim(),
         });
+    };
+
+    const confirmRequest = () => {
+        if (selectedJob) {
+            requestJob(selectedJob._id, {
+                onSuccess: () => setSelectedJob(null),
+            });
+        }
     };
 
     return (
@@ -138,10 +151,11 @@ export default function WorkerJobList() {
                             {/* Action */}
                             <div className="self-center md:self-start">
                                 <button
-                                    onClick={() => alert(`Requesting job: ${job._id}`)}
-                                    className="px-6 py-2 bg-[#FA5804] text-white rounded-lg hover:bg-orange-600 transition duration-300"
+                                    onClick={() => setSelectedJob(job)}
+                                    className="px-6 py-2 bg-[#FA5804] text-white rounded-lg hover:bg-orange-600 transition duration-300 disabled:opacity-50"
+                                    disabled={isRequesting}
                                 >
-                                    Request Job
+                                    {isRequesting && selectedJob?._id === job._id ? "Requesting..." : "Request Job"}
                                 </button>
                             </div>
                         </motion.div>
@@ -149,7 +163,7 @@ export default function WorkerJobList() {
                 })
             )}
 
-            {/* 📄 Pagination */}
+            {/* Pagination */}
             {pagination.totalPages > 1 && (
                 <div className="flex justify-center items-center gap-4 mt-8">
                     <button
@@ -169,6 +183,37 @@ export default function WorkerJobList() {
                     >
                         Next
                     </button>
+                </div>
+            )}
+
+            {/* Confirm Modal */}
+            {selectedJob && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                        <h2 className="text-xl font-bold mb-4 text-gray-800">Confirm Request</h2>
+                        <p className="text-gray-700 mb-4">
+                            Are you sure you want to request this job?
+                        </p>
+                        <ul className="text-gray-600 mb-4 text-sm space-y-1">
+                            <li><strong>Category:</strong> {selectedJob.category?.name || "N/A"}</li>
+                            <li><strong>Location:</strong> {selectedJob.location}</li>
+                            <li><strong>Description:</strong> {selectedJob.description}</li>
+                        </ul>
+                        <div className="flex justify-end gap-4">
+                            <button
+                                onClick={() => setSelectedJob(null)}
+                                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 transition"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmRequest}
+                                className="px-4 py-2 bg-[#FA5804] text-white rounded hover:bg-orange-600 transition"
+                            >
+                                {isRequesting ? "Requesting..." : "Confirm Request"}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
