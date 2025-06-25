@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../auth/AuthProvider";
 import { useAdminUsers } from "../../hooks/admin/useAdminUser";
+import { useGetVerificationRequests } from "../../hooks/admin/useAdminVerification";
 
 export default function AdminHeader() {
     const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -12,6 +13,10 @@ export default function AdminHeader() {
 
     const { logout, user } = useContext(AuthContext);
     const { users } = useAdminUsers();
+
+    // Fetch pending verification count
+    const { verifications: pendingVerifications = [], isLoading: isVerificationLoading } = useGetVerificationRequests({ page: 1, limit: 1 });
+    const pendingCount = pendingVerifications.length;
 
     const activeUsersCount = users.length;
 
@@ -36,8 +41,16 @@ export default function AdminHeader() {
                 {/* Stats - hidden on small screens */}
                 <div className="hidden md:flex items-center space-x-12 text-sm text-gray-600 select-none">
                     <div className="flex flex-col items-center">
-                        <p className="font-semibold text-gray-400 uppercase tracking-wide">Pending</p>
-                        <p className="text-orange-500 font-extrabold text-xl">23</p>
+                        <div className="flex flex-col items-center">
+                            <p className="font-semibold text-gray-400 uppercase tracking-wide">
+                                Pending Verifications
+                            </p>
+                            {isVerificationLoading ? (
+                                <p className="text-xs text-gray-400 animate-pulse">Loading...</p>
+                            ) : (
+                                <p className="text-orange-500 font-extrabold text-xl">{pendingCount}</p>
+                            )}
+                        </div>
                     </div>
 
                     <div className="flex flex-col items-center">
@@ -134,7 +147,10 @@ export default function AdminHeader() {
 
             {/* Logout Confirmation Modal */}
             {showLogoutModal && (
-                <div className="fixed inset-0 z-60 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm">
+                <div
+                    className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm"
+                    style={{ zIndex: 9999 }}
+                >
                     <div className="bg-white rounded-2xl shadow-xl max-w-sm w-[90%] p-7 animate-scaleFadeIn">
                         <h2 className="text-xl font-semibold mb-4 text-gray-800 select-none">Confirm Logout</h2>
                         <p className="text-gray-600 mb-6 select-none">Are you sure you want to logout?</p>
@@ -158,21 +174,21 @@ export default function AdminHeader() {
 
             {/* Animations via Tailwind (add to your CSS or tailwind config) */}
             <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-6px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes scaleFadeIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 200ms ease forwards;
-        }
-        .animate-scaleFadeIn {
-          animation: scaleFadeIn 250ms ease forwards;
-        }
-      `}</style>
+                @keyframes fadeIn {
+                  from { opacity: 0; transform: translateY(-6px); }
+                  to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes scaleFadeIn {
+                  from { opacity: 0; transform: scale(0.95); }
+                  to { opacity: 1; transform: scale(1); }
+                }
+                .animate-fadeIn {
+                  animation: fadeIn 200ms ease forwards;
+                }
+                .animate-scaleFadeIn {
+                  animation: scaleFadeIn 250ms ease forwards;
+                }
+            `}</style>
         </>
     );
 }

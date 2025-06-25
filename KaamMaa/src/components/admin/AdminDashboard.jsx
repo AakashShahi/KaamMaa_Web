@@ -11,6 +11,7 @@ import {
 import { motion } from "framer-motion";
 import { useAdminUsers } from "../../hooks/admin/useAdminUser";
 import { useAdminProfession } from "../../hooks/admin/useAdminProfession";
+import { useGetVerificationRequests } from "../../hooks/admin/useAdminVerification";
 
 const months = [
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -46,9 +47,16 @@ export default function AdminDashboard() {
         isError: professionsError,
     } = useAdminProfession();
 
+    const {
+        verifications = [],
+        isLoading: verificationLoading,
+        isError: verificationError,
+    } = useGetVerificationRequests({ page: 1, limit: 1000 });
+
     const totalCustomers = users.filter((u) => u.role === "customer").length;
     const totalWorkers = users.filter((u) => u.role === "worker").length;
     const totalProfessions = professions.length;
+    const pendingVerifications = verifications.length;
 
     const stats = [
         {
@@ -71,7 +79,7 @@ export default function AdminDashboard() {
         },
         {
             label: "Pending Verifications",
-            value: 37,
+            value: verificationLoading ? "..." : pendingVerifications,
             icon: <FileClock className="text-yellow-600" size={28} />,
             color: "bg-yellow-100",
         },
@@ -93,7 +101,7 @@ export default function AdminDashboard() {
         );
     }
 
-    if (usersError || professionsError) {
+    if (usersError || professionsError || verificationError) {
         return (
             <section className="flex justify-center items-center h-48">
                 <p className="text-red-500 text-lg font-semibold">Failed to load dashboard data.</p>
@@ -171,8 +179,9 @@ function StatCard({ icon, label, value, color }) {
             <div className={`p-3 rounded-xl ${color}`}>{icon}</div>
             <div>
                 <p className="text-gray-600 text-sm font-medium">{label}</p>
-                <p className="text-3xl font-extrabold text-gray-900">{value.toLocaleString()}</p>
+                <p className="text-3xl font-extrabold text-gray-900">{value?.toLocaleString?.() ?? value}</p>
             </div>
         </div>
     );
 }
+

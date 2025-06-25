@@ -7,6 +7,7 @@ export const ADMIN_PROFESSION_DETAIL = "admin_profession_detail"
 export const ADMIN_PROFESSION_DELETE = "admin_profession_delete"
 export const ADMIN_PROFESSION_CREATE = "admin_profession_create"
 export const ADMIN_PROFESSION_UPDATE = "admin_profession_upadte"
+export const ADMIN_VERIFICATION_LIST = "admin_verification"
 
 //Worker Job Key
 export const WORKER_IN_PROGRESS_JOB = "worker_in_progress_job"
