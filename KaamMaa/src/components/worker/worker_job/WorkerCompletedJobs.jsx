@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { FaMapMarkerAlt, FaClock, FaBriefcase, FaSearch } from "react-icons/fa";
+import { FaMapMarkerAlt, FaClock, FaBriefcase, FaSearch, FaStar } from "react-icons/fa";
 import { useWorkerCompletedJob } from "../../../hooks/worker/useWorkerJob";
 import { getBackendImageUrl } from "../../../utils/backend_image";
 
@@ -22,6 +22,30 @@ export default function WorkerCompletedJobs() {
         setQueryParams({
             search: search.trim()
         });
+    };
+
+    const renderStars = (rating) => {
+        const stars = [];
+
+        for (let i = 1; i <= 5; i++) {
+            if (rating >= i) {
+                stars.push(<FaStar key={i} className="text-yellow-500" />);
+            } else if (rating >= i - 0.5) {
+                stars.push(
+                    <span key={i} className="relative inline-block text-yellow-500 w-4 h-4">
+                        <FaStar className="absolute top-0 left-0 text-gray-300" />
+                        <FaStar
+                            className="absolute top-0 left-0 text-yellow-500"
+                            style={{ clipPath: "inset(0 50% 0 0)" }}
+                        />
+                    </span>
+                );
+            } else {
+                stars.push(<FaStar key={i} className="text-gray-300" />);
+            }
+        }
+
+        return stars;
     };
 
     return (
@@ -64,9 +88,11 @@ export default function WorkerCompletedJobs() {
                 <div className="text-center text-gray-400">No completed jobs found.</div>
             )}
 
-            {/* ✅ Data */}
+            {/* ✅ Jobs List */}
             {!isLoading && !isError && completedJobs.map((job, index) => {
                 const customer = job.postedBy || {};
+                const review = job.review || {};
+
                 return (
                     <motion.div
                         key={job._id}
@@ -118,6 +144,25 @@ export default function WorkerCompletedJobs() {
                                     {customer.name || "Unknown"} - {customer.location || "N/A"}
                                 </div>
                             </div>
+
+                            {/* ⭐ Review */}
+                            {review.rating ? (
+                                <div className="mt-3">
+                                    <div className="flex items-center gap-1 text-yellow-500">
+                                        {renderStars(review.rating)}
+                                        <span className="text-sm text-gray-600 ml-2">({review.rating}/5)</span>
+                                    </div>
+                                    {review.comment && (
+                                        <p className="text-sm text-gray-700 mt-1 italic border-l-4 border-orange-400 pl-4">
+                                            "{review.comment}"
+                                        </p>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="mt-3 text-sm text-red-600 font-medium border-l-4 border-red-500 pl-4">
+                                    Please ask the customer to rate your job before deadline. Otherwise, your job will be marked as failed.
+                                </div>
+                            )}
                         </div>
                     </motion.div>
                 );

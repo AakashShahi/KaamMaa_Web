@@ -4,6 +4,8 @@ import {
     getWorkerProfileService,
     updateWorkerProfileService,
     updateWorkerPasswordService,
+    applyForVerificationService,
+    cancelVerificationService,
 } from "../../services/worker/profileService";
 import { WORKER_PROFILE, WORKER_CHANGE_PASSWORD, WORKER_UPDATE_PROFILE } from "../../constants/queryKeys"
 
@@ -40,5 +42,36 @@ export const useUpdateWorkerPassword = () => {
     });
 };
 
+// Apply for verification mutation hook
+export const useApplyForVerification = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: applyForVerificationService,
+        onSuccess: (data) => {
+            toast.success(data.message || "Verification request sent");
+            queryClient.invalidateQueries(WORKER_PROFILE);
+        },
+        onError: (error) => {
+            toast.error(error.message || "Failed to apply for verification");
+        },
+    });
+};
+
+// Cancel verification mutation hook
+export const useCancelVerification = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: cancelVerificationService,
+        onSuccess: (data) => {
+            toast.success(data.message || "Verification request cancelled");
+            queryClient.invalidateQueries(WORKER_PROFILE);
+        },
+        onError: (error) => {
+            toast.error(error.message || "Failed to cancel verification request");
+        },
+    });
+};
 
 

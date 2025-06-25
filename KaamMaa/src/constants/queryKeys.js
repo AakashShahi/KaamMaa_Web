@@ -14,6 +14,10 @@ export const WORKER_PUBLIC_JOB = "worker_public_job"
 export const WORKER_REQUESTED_JOB = "worker_requested_job"
 export const WORKER_ASSIGNED_JOB = "worker_assigned_job"
 export const WORKER_COMPLETED_JOB = "worker-completed-job";
+export const WORKER_FAILED_JOB = "worker-failed-job";
+
+//Worker Review
+export const WORKER_REVIEW = "worker_review"
 
 //Worker Profile Key
 export const WORKER_PROFILE = "worker-profile"

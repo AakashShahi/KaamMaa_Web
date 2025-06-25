@@ -1,4 +1,8 @@
-import { getInProgressJobApi, getPublicJobApi, requestPublicJobApi, getRequestedJobApi, cancelRequestedJobApi, getAssignedJobApi, acceptAssignedJobApi, rejectAssignedJobApi, getCompletedJobApi } from "../../api/worker/jobApi"
+import {
+    getInProgressJobApi, getPublicJobApi, requestPublicJobApi, getRequestedJobApi, cancelRequestedJobApi,
+    getAssignedJobApi, acceptAssignedJobApi, rejectAssignedJobApi,
+    getCompletedJobApi, getFailedJobApi, deleteFailedJobByWorkerApi
+} from "../../api/worker/jobApi"
 
 export const getInProgressJobService = async () => {
     try {
@@ -89,3 +93,23 @@ export const getCompletedJobService = async (params) => {
         throw err.response?.data || { message: "Failed to fetch completed jobs" };
     }
 };
+
+export const getFailedJobService = async () => {
+    try {
+        const response = await getFailedJobApi();
+        return response.data;
+    } catch (err) {
+        console.log(err);
+        throw err.response?.data || { message: "Failed to fetch completed jobs" };
+    }
+};
+
+export const deleteFailedJobSevice = async (jobId) => {
+    try {
+        const response = await deleteFailedJobByWorkerApi(jobId)
+        return response.data
+    } catch (error) {
+        console.log(err);
+        throw err.response?.data || { message: "Failed to delete failed jobs" };
+    }
+}

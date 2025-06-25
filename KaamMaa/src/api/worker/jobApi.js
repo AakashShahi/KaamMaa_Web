@@ -22,5 +22,7 @@ export const rejectAssignedJobApi = (jobId) => axios.put(`worker/jobs/assigned/$
 export const getCompletedJobApi = (params) =>
     axios.get("/worker/jobs/completed", { params });
 
+export const getFailedJobApi = () => axios.get("/worker/jobs/failed")
 
+export const deleteFailedJobByWorkerApi = (jobId) => axios.delete(`/worker/jobs/${jobId}/soft-delete`)
 

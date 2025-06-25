@@ -14,3 +14,6 @@ export const updateWorkerProfileApi = (formData) =>
 // Change worker password (PUT with JSON)
 export const updateWorkerPasswordApi = (payload) =>
     axios.put("/worker/profile/change-password", payload);
+
+export const applyForVerified = () => axios.post("/worker/profile/apply-verification")
+export const cancelVerification = () => axios.post("/worker/profile/cancel-verification")

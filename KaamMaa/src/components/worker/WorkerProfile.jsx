@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { useGetWorkerProfile } from "../../hooks/worker/useWorkerProfile";
+import { useGetWorkerProfile, useApplyForVerification, useCancelVerification } from "../../hooks/worker/useWorkerProfile";
 import { getBackendImageUrl } from "../../utils/backend_image";
 import {
     FaPhoneAlt,
@@ -11,6 +11,7 @@ import {
     FaCheckCircle,
     FaMinus,
     FaUser,
+    FaHourglassHalf,
 } from "react-icons/fa";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -21,6 +22,13 @@ export default function WorkerProfile() {
     const profileRef = useRef(null);
     const [showUpdateProfile, setShowUpdateProfile] = useState(false);
     const [showChangePassword, setShowChangePassword] = useState(false);
+
+    // New state for Verification modal and type (apply or cancel)
+    const [verificationModalOpen, setVerificationModalOpen] = useState(false);
+    const [verificationAction, setVerificationAction] = useState(null); // 'apply' or 'cancel'
+
+    const applyVerificationMutation = useApplyForVerification();
+    const cancelVerificationMutation = useCancelVerification();
 
     const handleDownloadPDF = async () => {
         const element = profileRef.current;
@@ -46,6 +54,38 @@ export default function WorkerProfile() {
             : Array.isArray(profile.skills)
                 ? profile.skills
                 : [];
+
+    // We assume there's a boolean or flag `verificationRequest` to know if pending
+    // If you don't have it in your backend, you need to add it and populate it in profile response
+    const isPendingVerification = profile.verificationRequest === true;
+
+    // Open modal helper
+    const openVerificationModal = (action) => {
+        setVerificationAction(action);
+        setVerificationModalOpen(true);
+    };
+
+    // Confirm verification action handler
+    const confirmVerificationAction = () => {
+        if (verificationAction === "apply") {
+            applyVerificationMutation.mutate(null, {
+                onSuccess: () => {
+                    setVerificationModalOpen(false);
+                },
+            });
+        } else if (verificationAction === "cancel") {
+            cancelVerificationMutation.mutate(null, {
+                onSuccess: () => {
+                    setVerificationModalOpen(false);
+                },
+            });
+        }
+    };
+
+    // Close modal
+    const closeVerificationModal = () => {
+        setVerificationModalOpen(false);
+    };
 
     return (
         <div className="max-w-5xl mx-auto py-10 px-6 space-y-8">
@@ -79,11 +119,28 @@ export default function WorkerProfile() {
                             </div>
                         )}
 
-                        <div className="absolute bottom-1 right-1 rounded-full p-1 bg-white shadow-md">
+                        <div className="absolute bottom-1 right-1 rounded-full p-1 bg-white shadow-md flex items-center justify-center w-10 h-10">
                             {profile.isVerified ? (
-                                <FaCheckCircle className="text-green-600 text-xl" title="Verified" />
+                                <span
+                                    className="text-green-600 text-lg font-semibold"
+                                    title="Verified"
+                                >
+                                    <FaCheckCircle />
+                                </span>
+                            ) : isPendingVerification ? (
+                                <span
+                                    className="text-yellow-600 text-lg font-semibold"
+                                    title="Verification Pending"
+                                >
+                                    <FaHourglassHalf />
+                                </span>
                             ) : (
-                                <FaMinus className="text-gray-400 text-xl" title="Not Verified" />
+                                <span
+                                    className="text-gray-400 text-lg font-semibold"
+                                    title="Not Verified"
+                                >
+                                    <FaMinus />
+                                </span>
                             )}
                         </div>
                     </div>
@@ -120,6 +177,10 @@ export default function WorkerProfile() {
                             {profile.isVerified ? (
                                 <span className="inline-flex items-center gap-1 text-green-700 font-semibold">
                                     <FaCheckCircle /> Yes
+                                </span>
+                            ) : isPendingVerification ? (
+                                <span className="inline-flex items-center gap-1 text-yellow-600 font-semibold">
+                                    <FaHourglassHalf /> Pending
                                 </span>
                             ) : (
                                 <span className="inline-flex items-center gap-1 text-orange-600 font-semibold">
@@ -212,6 +273,25 @@ export default function WorkerProfile() {
                 >
                     <FaLock /> Change Password
                 </button>
+
+                {/* Verification buttons */}
+                {!profile.isVerified && !isPendingVerification && (
+                    <button
+                        onClick={() => openVerificationModal("apply")}
+                        className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md shadow"
+                    >
+                        <FaHourglassHalf /> Apply for Verification
+                    </button>
+                )}
+
+                {!profile.isVerified && isPendingVerification && (
+                    <button
+                        onClick={() => openVerificationModal("cancel")}
+                        className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md shadow"
+                    >
+                        <FaMinus /> Cancel Verification Request
+                    </button>
+                )}
             </div>
 
             {/* Modals */}
@@ -221,6 +301,44 @@ export default function WorkerProfile() {
                 showChangePassword={showChangePassword}
                 setShowChangePassword={setShowChangePassword}
             />
+
+            {/* Verification Confirmation Modal */}
+            {verificationModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl p-6 w-80 shadow-lg text-center">
+                        <h3 className="text-lg font-semibold mb-4">
+                            {verificationAction === "apply"
+                                ? "Apply for Verification"
+                                : "Cancel Verification Request"}
+                        </h3>
+                        <p className="text-gray-600 mb-6">
+                            {verificationAction === "apply"
+                                ? "Do you want to apply for verification?"
+                                : "Do you want to cancel your verification request?"}
+                        </p>
+                        <div className="flex justify-center gap-4">
+                            <button
+                                onClick={confirmVerificationAction}
+                                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                                disabled={
+                                    applyVerificationMutation.isLoading || cancelVerificationMutation.isLoading
+                                }
+                            >
+                                Yes
+                            </button>
+                            <button
+                                onClick={closeVerificationModal}
+                                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                                disabled={
+                                    applyVerificationMutation.isLoading || cancelVerificationMutation.isLoading
+                                }
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

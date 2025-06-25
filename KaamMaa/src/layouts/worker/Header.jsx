@@ -44,7 +44,7 @@ export default function Header() {
                         { to: "/worker/dashboard", label: "Home", exact: true },
                         { to: "/worker/dashboard/jobs", label: "Jobs List" },
                         { to: "/worker/dashboard/myjobs", label: "My Jobs" },
-                        { to: "/worker/dashboard/search", label: "Search" },
+                        { to: "/worker/dashboard/search", label: "Your Reviews" },
                     ].map(({ to, label, exact }) => (
                         <NavLink
                             key={to}

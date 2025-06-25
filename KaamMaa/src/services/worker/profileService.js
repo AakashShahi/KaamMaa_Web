@@ -1,4 +1,4 @@
-import { getWorkerProfileApi, updateWorkerPasswordApi, updateWorkerProfileApi } from "../../api/worker/profileApi";
+import { applyForVerified, cancelVerification, getWorkerProfileApi, updateWorkerPasswordApi, updateWorkerProfileApi } from "../../api/worker/profileApi";
 
 // Get worker profile
 export const getWorkerProfileService = async () => {
@@ -30,5 +30,26 @@ export const updateWorkerPasswordService = async (payload) => {
     } catch (err) {
         console.error("Error updating password:", err);
         throw err.response?.data || { message: "Failed to change password" };
+    }
+};
+
+export const applyForVerificationService = async () => {
+    try {
+        const response = await applyForVerified();
+        return response.data;
+    } catch (err) {
+        console.error("Error applying for verification:", err);
+        throw err.response?.data || { message: "Failed to apply for verification" };
+    }
+};
+
+// Cancel verification request
+export const cancelVerificationService = async () => {
+    try {
+        const response = await cancelVerification();
+        return response.data;
+    } catch (err) {
+        console.error("Error cancelling verification:", err);
+        throw err.response?.data || { message: "Failed to cancel verification request" };
     }
 };

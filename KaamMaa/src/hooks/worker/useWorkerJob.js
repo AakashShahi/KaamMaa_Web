@@ -1,7 +1,7 @@
 import { toast } from "react-toastify";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { acceptAssignedJobService, cancelRequestedJobService, getAssignedJobService, getCompletedJobService, getInProgressJobService, getPublicJobService, getRequestedJobService, rejectAssignedJobService, requestPublicJobService } from "../../services/worker/jobService";
-import { WORKER_ASSIGNED_JOB, WORKER_COMPLETED_JOB, WORKER_IN_PROGRESS_JOB, WORKER_PUBLIC_JOB, WORKER_REQUESTED_JOB } from "../../constants/queryKeys";
+import { acceptAssignedJobService, cancelRequestedJobService, deleteFailedJobSevice, getAssignedJobService, getCompletedJobService, getFailedJobService, getInProgressJobService, getPublicJobService, getRequestedJobService, rejectAssignedJobService, requestPublicJobService } from "../../services/worker/jobService";
+import { WORKER_ASSIGNED_JOB, WORKER_COMPLETED_JOB, WORKER_FAILED_JOB, WORKER_IN_PROGRESS_JOB, WORKER_PUBLIC_JOB, WORKER_REQUESTED_JOB } from "../../constants/queryKeys";
 
 export const useWorkerInProgressJob = () => {
     const query = useQuery(
@@ -134,3 +134,30 @@ export const useWorkerCompletedJob = (params) => {
         pagination: query.data?.pagination || { page: 1, totalPages: 1 },
     };
 };
+
+export const useWorkerFailedJob = () => {
+    const query = useQuery({
+        queryKey: [WORKER_FAILED_JOB],
+        queryFn: () => getFailedJobService(),
+    });
+
+    return {
+        ...query,
+        failedJobs: query.data?.data || []
+    };
+};
+
+export const deleteFailedJob = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (jobId) => deleteFailedJobSevice(jobId),
+        onSuccess: () => {
+            toast.success("Failed job deleted.");
+            queryClient.invalidateQueries({ queryKey: [WORKER_FAILED_JOB] });
+        },
+        onError: (err) => {
+            toast.error(err?.message || "Failed to failed job.");
+        },
+    });
+
+}
