@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaSearch, FaTrash } from 'react-icons/fa';
+import { FaSearch, FaTrash, FaUserCircle, FaBriefcase, FaCalendarAlt, FaMapMarkerAlt } from 'react-icons/fa';
 import { HiOutlinePlus } from 'react-icons/hi';
 import AdminAddUserModal from './modal/AdminAddUserModal';
 import AdminDeleteUserModal from './modal/AdminDeleteUserModal';
@@ -9,6 +9,7 @@ import {
     useCreateAdminUser
 } from '../../hooks/admin/useAdminUser';
 import { useAdminProfession } from '../../hooks/admin/useAdminProfession';
+import { getBackendImageUrl } from '../../utils/backend_image';
 
 export default function AdminUserManagement() {
     const [showModal, setShowModal] = useState(false);
@@ -107,9 +108,22 @@ export default function AdminUserManagement() {
                             className="bg-white shadow-md rounded-xl p-5 group hover:shadow-lg transition-all duration-300"
                         >
                             <div className="flex items-center justify-between mb-3">
-                                <div>
-                                    <h3 className="text-lg font-semibold text-gray-800">{user.username}</h3>
-                                    <p className="text-sm text-gray-500">{user.email}</p>
+                                <div className="flex items-center gap-4">
+                                    {user.profilePic ? (
+                                        <img
+                                            src={getBackendImageUrl(user.profilePic)}
+                                            alt={user.username}
+                                            className="w-14 h-14 rounded-full object-cover border"
+                                        />
+                                    ) : (
+                                        <FaUserCircle
+                                            className="w-14 h-14 text-gray-400"
+                                        />
+                                    )}
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-gray-800">{user.username}</h3>
+                                        <p className="text-sm text-gray-500">{user.email}</p>
+                                    </div>
                                 </div>
                                 <span
                                     className={`text-xs font-medium px-3 py-1 rounded-full ${getRoleColorClass(user.role)}`}
@@ -118,9 +132,26 @@ export default function AdminUserManagement() {
                                 </span>
                             </div>
 
-                            <div className="text-sm text-gray-600 space-y-1">
-                                <p><strong>Profession:</strong> {user.profession?.category || '—'}</p>
-                                <p><strong>Joined:</strong> {new Date(user.createdAt).toLocaleDateString()}</p>
+                            <div className="text-sm text-gray-600 space-y-2">
+                                {/* Profession only if NOT admin or customer */}
+                                {user.role !== 'admin' && user.role !== 'customer' && (
+                                    <p className="flex items-center gap-2">
+                                        <FaBriefcase className="text-orange-400" />
+                                        <span><strong>Profession:</strong> {user.profession?.category || '—'}</span>
+                                    </p>
+                                )}
+
+                                {/* Joined date */}
+                                <p className="flex items-center gap-2">
+                                    <FaCalendarAlt className="text-blue-400" />
+                                    <span><strong>Joined:</strong> {new Date(user.createdAt).toLocaleDateString()}</span>
+                                </p>
+
+                                {/* Location */}
+                                <p className="flex items-center gap-2">
+                                    <FaMapMarkerAlt className="text-red-400" />
+                                    <span><strong>Location:</strong> {user.location || '—'}</span>
+                                </p>
                             </div>
 
                             <div className="mt-4 flex justify-end">

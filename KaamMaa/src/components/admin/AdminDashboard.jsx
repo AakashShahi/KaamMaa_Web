@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import { useAdminUsers } from "../../hooks/admin/useAdminUser";
 import { useAdminProfession } from "../../hooks/admin/useAdminProfession";
 import { useGetVerificationRequests } from "../../hooks/admin/useAdminVerification";
+import { useGetAllReviews } from "../../hooks/admin/useAdminReview";
 
 const months = [
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -48,6 +49,15 @@ export default function AdminDashboard() {
     } = useAdminProfession();
 
     const {
+        reviews,
+        isLoading: reviewLoading,
+        isError: reviewError,
+        pagination,
+    } = useGetAllReviews({ page: 1, limit: 1, search: "" });
+
+    const totalReviews = pagination.total || 0;
+
+    const {
         verifications = [],
         isLoading: verificationLoading,
         isError: verificationError,
@@ -73,7 +83,7 @@ export default function AdminDashboard() {
         },
         {
             label: "Total Reviews",
-            value: 6543,
+            value: reviewLoading ? "..." : totalReviews,
             icon: <MessageSquare className="text-purple-600" size={28} />,
             color: "bg-purple-100",
         },

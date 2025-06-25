@@ -47,8 +47,6 @@ export const useGetOneProfession = (id) => {
         ...query, profession
     }
 }
-// id = "123" -> !!id = true
-// id = undefined -> !!id = false
 
 export const useUpdateOneProfession = () => {
     const queryClient = useQueryClient()
