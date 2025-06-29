@@ -32,7 +32,7 @@ export default function AdminReviewManagement() {
 
             <input
                 type="text"
-                placeholder="Search by comment..."
+                placeholder="Search by comment or worker name..."
                 className="w-full max-w-sm px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                 value={search}
                 onChange={(e) => {

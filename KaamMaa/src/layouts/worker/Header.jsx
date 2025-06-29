@@ -5,6 +5,8 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import logo from '../../assets/logo/kaammaa_logo.png';
 import { AuthContext } from "../../auth/AuthProvider";
+import { useGetWorkerProfile } from "../../hooks/worker/useWorkerProfile";
+import { getBackendImageUrl } from "../../utils/backend_image";
 
 export default function Header() {
     const [showDropdown, setShowDropdown] = useState(false);
@@ -12,6 +14,8 @@ export default function Header() {
     const profileRef = useRef(null);
     const navigate = useNavigate();
     const { logout, user } = useContext(AuthContext);
+    const { data: profileData } = useGetWorkerProfile();
+    const profile = profileData?.data;
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -76,6 +80,11 @@ export default function Header() {
                         <div className="w-7 h-7 rounded-full bg-gray-200 shadow-inner flex items-center justify-center">
                             <img
                                 alt="User Avatar"
+                                src={
+                                    profile?.profilePic
+                                        ? getBackendImageUrl(profile.profilePic)
+                                        : "https://via.placeholder.com/150"
+                                }
                                 className="w-full h-full object-cover rounded-full"
                             />
                         </div>

@@ -1,14 +1,18 @@
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
-import { FaMapMarkerAlt, FaClock, FaBriefcase } from "react-icons/fa";
-import { useWorkerAssignedJob, useAcceptAssignedJob, useRejectAssignedJob } from "../../../hooks/worker/useWorkerJob";
+import { FaMapMarkerAlt, FaClock, FaBriefcase, FaPhone } from "react-icons/fa";
+import { FaPerson } from "react-icons/fa6";
+import {
+    useWorkerAssignedJob,
+    useAcceptAssignedJob,
+    useRejectAssignedJob,
+} from "../../../hooks/worker/useWorkerJob";
 import { getBackendImageUrl } from "../../../utils/backend_image";
 
 export default function WorkerAssignedJobs() {
     const { assignedJobs, isLoading, isError } = useWorkerAssignedJob();
     const { mutate: acceptJob, isLoading: isAccepting } = useAcceptAssignedJob();
     const { mutate: rejectJob, isLoading: isRejecting } = useRejectAssignedJob();
-    const [selectedJobId, setSelectedJobId] = useState(null);
 
     if (isLoading) {
         return <div className="text-center text-gray-500">Loading assigned jobs...</div>;
@@ -33,7 +37,7 @@ export default function WorkerAssignedJobs() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: index * 0.05 }}
-                        className="bg-white shadow-md rounded-xl border border-gray-200 p-6 flex flex-col md:flex-row gap-6 hover:shadow-xl transition duration-300"
+                        className="bg-white shadow-md rounded-xl border border-gray-200 p-6 flex flex-col md:flex-row gap-6 hover:shadow-xl transition duration-300 border-l-4 border-yellow-500"
                     >
                         {/* Icon */}
                         <div className="w-24 h-24 flex-shrink-0">
@@ -71,29 +75,31 @@ export default function WorkerAssignedJobs() {
                                             : "N/A"}
                                 </div>
                                 <div className="flex items-center gap-1">
-                                    <FaMapMarkerAlt className="text-purple-500" />
-                                    <span className="font-medium">Customer:</span>{" "}
-                                    {customer.name || "Unknown"} - {customer.location || "N/A"}
+                                    <FaPerson className="text-purple-500" />
+                                    <span className="font-medium">Customer:</span> {customer.name || "Unknown"}
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <FaPhone className="text-gray-500" />
+                                    <span className="font-medium">Contact:</span> {customer.phone || "N/A"}
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Actions */}
-                        <div className="flex flex-col gap-2 justify-center">
-                            <button
-                                onClick={() => acceptJob(job._id)}
-                                disabled={isAccepting && selectedJobId === job._id}
-                                className="px-5 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition disabled:opacity-50"
-                            >
-                                {isAccepting && selectedJobId === job._id ? "Accepting..." : "Accept"}
-                            </button>
-                            <button
-                                onClick={() => rejectJob(job._id)}
-                                disabled={isRejecting && selectedJobId === job._id}
-                                className="px-5 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition disabled:opacity-50"
-                            >
-                                {isRejecting && selectedJobId === job._id ? "Rejecting..." : "Reject"}
-                            </button>
+                            <div className="mt-3 flex gap-3">
+                                <button
+                                    onClick={() => acceptJob(job._id)}
+                                    disabled={isAccepting}
+                                    className="px-5 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition disabled:opacity-50"
+                                >
+                                    {isAccepting ? "Accepting..." : "Accept"}
+                                </button>
+                                <button
+                                    onClick={() => rejectJob(job._id)}
+                                    disabled={isRejecting}
+                                    className="px-5 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition disabled:opacity-50"
+                                >
+                                    {isRejecting ? "Rejecting..." : "Reject"}
+                                </button>
+                            </div>
                         </div>
                     </motion.div>
                 );

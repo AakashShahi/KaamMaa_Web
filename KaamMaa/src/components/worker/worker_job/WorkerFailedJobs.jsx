@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { FaMapMarkerAlt, FaClock, FaBriefcase, FaTrash } from "react-icons/fa";
+import { FaMapMarkerAlt, FaClock, FaBriefcase, FaTrash, FaPhone } from "react-icons/fa";
 import { useWorkerFailedJob, deleteFailedJob } from "../../../hooks/worker/useWorkerJob";
 import { getBackendImageUrl } from "../../../utils/backend_image";
+import { FaPerson } from "react-icons/fa6";
 
 export default function WorkerFailedJobs() {
     const { failedJobs, isLoading, isError } = useWorkerFailedJob();
@@ -30,14 +31,10 @@ export default function WorkerFailedJobs() {
     return (
         <div className="space-y-6">
             {/* 🔃 Loading */}
-            {isLoading && (
-                <div className="text-center text-gray-500">Loading failed jobs...</div>
-            )}
+            {isLoading && <div className="text-center text-gray-500">Loading failed jobs...</div>}
 
             {/* ❌ Error */}
-            {isError && (
-                <div className="text-center text-red-500">Failed to load jobs.</div>
-            )}
+            {isError && <div className="text-center text-red-500">Failed to load jobs.</div>}
 
             {/* ⚠️ No Jobs */}
             {!isLoading && !isError && failedJobs.length === 0 && (
@@ -55,7 +52,7 @@ export default function WorkerFailedJobs() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.3, delay: index * 0.05 }}
-                            className="bg-white shadow-md rounded-xl border border-gray-200 p-6 flex flex-col md:flex-row gap-6 hover:shadow-xl transition duration-300"
+                            className="bg-white shadow-md rounded-xl border border-gray-200 p-6 flex flex-col md:flex-row gap-6 hover:shadow-xl transition duration-300 border-l-4 border-red-500"
                         >
                             {/* Icon */}
                             <div className="w-24 h-24 flex-shrink-0">
@@ -93,10 +90,20 @@ export default function WorkerFailedJobs() {
                                                 : "N/A"}
                                     </div>
                                     <div className="flex items-center gap-1">
-                                        <FaMapMarkerAlt className="text-purple-500" />
+                                        <FaPerson className="text-purple-500" />
                                         <span className="font-medium">Customer:</span>{" "}
-                                        {customer.name || "Unknown"} - {customer.location || "N/A"}
+                                        {customer.name || "Unknown"}
                                     </div>
+                                    <div className="flex items-center gap-1">
+                                        <FaPhone className="text-gray-500" />
+                                        <span className="font-medium">Contact:</span>{" "}
+                                        {customer.phone || "N/A"}
+                                    </div>
+                                </div>
+
+                                {/* Failed Note */}
+                                <div className="mt-3 text-sm text-red-700 font-medium border-l-4 border-red-600 pl-4 bg-red-50 rounded">
+                                    ❌ This job was marked as <strong>failed</strong> due to missed rating or deadline.
                                 </div>
                             </div>
 
@@ -114,24 +121,24 @@ export default function WorkerFailedJobs() {
                     );
                 })}
 
-            {/* 🧾 Modal */}
+            {/* Modal */}
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full text-center space-y-4">
-                        <h2 className="text-lg font-semibold text-gray-800">Delete Failed Job</h2>
-                        <p className="text-gray-600">Are you sure you want to delete this failed job?</p>
+                    <div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full text-center space-y-4">
+                        <h2 className="text-lg font-bold text-red-600">Confirm Deletion</h2>
+                        <p className="text-gray-700">Are you sure you want to delete this failed job?</p>
                         <div className="flex justify-center gap-4">
                             <button
                                 onClick={closeModal}
-                                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700"
+                                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleDelete}
-                                className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white"
+                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
                             >
-                                Confirm
+                                {deleteMutation.isLoading ? "Deleting..." : "Yes, Delete"}
                             </button>
                         </div>
                     </div>

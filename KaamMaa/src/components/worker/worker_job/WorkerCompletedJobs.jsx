@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { FaMapMarkerAlt, FaClock, FaBriefcase, FaSearch, FaStar } from "react-icons/fa";
+import { FaMapMarkerAlt, FaClock, FaBriefcase, FaSearch, FaStar, FaPhone } from "react-icons/fa";
 import { useWorkerCompletedJob } from "../../../hooks/worker/useWorkerJob";
 import { getBackendImageUrl } from "../../../utils/backend_image";
+import { FaPerson } from "react-icons/fa6";
 
 export default function WorkerCompletedJobs() {
     const [page, setPage] = useState(1);
@@ -19,9 +20,7 @@ export default function WorkerCompletedJobs() {
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         setPage(1);
-        setQueryParams({
-            search: search.trim()
-        });
+        setQueryParams({ search: search.trim() });
     };
 
     const renderStars = (rating) => {
@@ -50,7 +49,7 @@ export default function WorkerCompletedJobs() {
 
     return (
         <div className="space-y-6">
-            {/* 🔍 Search */}
+            {/* 🔍 Search Bar */}
             <form
                 onSubmit={handleSearchSubmit}
                 className="flex flex-wrap gap-4 items-end bg-white p-6 rounded-xl shadow-md mb-6"
@@ -73,22 +72,13 @@ export default function WorkerCompletedJobs() {
                 </button>
             </form>
 
-            {/* 🌀 Loading */}
-            {isLoading && (
-                <div className="text-center text-gray-500">Loading completed jobs...</div>
-            )}
-
-            {/* ❌ Error */}
-            {isError && (
-                <div className="text-center text-red-500">Failed to load completed jobs.</div>
-            )}
-
-            {/* ⚠️ No Data */}
+            {/* 📦 Job List */}
+            {isLoading && <div className="text-center text-gray-500">Loading completed jobs...</div>}
+            {isError && <div className="text-center text-red-500">Failed to load completed jobs.</div>}
             {!isLoading && !isError && completedJobs.length === 0 && (
                 <div className="text-center text-gray-400">No completed jobs found.</div>
             )}
 
-            {/* ✅ Jobs List */}
             {!isLoading && !isError && completedJobs.map((job, index) => {
                 const customer = job.postedBy || {};
                 const review = job.review || {};
@@ -99,7 +89,7 @@ export default function WorkerCompletedJobs() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: index * 0.05 }}
-                        className="bg-white shadow-md rounded-xl border border-gray-200 p-6 flex flex-col md:flex-row gap-6 hover:shadow-xl transition duration-300"
+                        className="bg-white shadow-md rounded-xl border border-gray-200 p-6 flex flex-col md:flex-row gap-6 hover:shadow-xl transition duration-300 border-l-4 border-green-600"
                     >
                         {/* Icon */}
                         <div className="w-24 h-24 flex-shrink-0">
@@ -139,30 +129,27 @@ export default function WorkerCompletedJobs() {
                                                 : "N/A"}
                                 </div>
                                 <div className="flex items-center gap-1">
-                                    <FaMapMarkerAlt className="text-purple-500" />
-                                    <span className="font-medium">Customer:</span>{" "}
-                                    {customer.name || "Unknown"} - {customer.location || "N/A"}
+                                    <FaPerson className="text-purple-500" />
+                                    <span className="font-medium">Customer:</span> {customer.name || "Unknown"}
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <FaPhone className="text-gray-500" />
+                                    <span className="font-medium">Contact:</span> {customer.phone || "N/A"}
                                 </div>
                             </div>
 
-                            {/* ⭐ Review */}
-                            {review.rating ? (
-                                <div className="mt-3">
-                                    <div className="flex items-center gap-1 text-yellow-500">
-                                        {renderStars(review.rating)}
-                                        <span className="text-sm text-gray-600 ml-2">({review.rating}/5)</span>
-                                    </div>
-                                    {review.comment && (
-                                        <p className="text-sm text-gray-700 mt-1 italic border-l-4 border-orange-400 pl-4">
-                                            "{review.comment}"
-                                        </p>
-                                    )}
+                            {/* ⭐ Review Section */}
+                            <div className="mt-3">
+                                <div className="flex items-center gap-1 text-yellow-500">
+                                    {renderStars(review.rating)}
+                                    <span className="text-sm text-gray-600 ml-2">({review.rating || 0}/5)</span>
                                 </div>
-                            ) : (
-                                <div className="mt-3 text-sm text-red-600 font-medium border-l-4 border-red-500 pl-4">
-                                    Please ask the customer to rate your job before deadline. Otherwise, your job will be marked as failed.
-                                </div>
-                            )}
+                                {review.comment && (
+                                    <p className="text-sm text-gray-700 mt-1 italic border-l-4 border-orange-400 pl-4">
+                                        "{review.comment}"
+                                    </p>
+                                )}
+                            </div>
                         </div>
                     </motion.div>
                 );

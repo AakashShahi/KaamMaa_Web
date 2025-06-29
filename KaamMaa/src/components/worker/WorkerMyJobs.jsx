@@ -11,11 +11,11 @@ const tabs = [
     "Assigned Jobs",
     "In Progress Jobs",
     "Completed Jobs",
-    "Failed Jobs"
+    "Failed Jobs",
 ];
 
 export default function WorkerMyJobs() {
-    const [activeTab, setActiveTab] = useState("Requested Jobs");
+    const [activeTab, setActiveTab] = useState("In Progress Jobs");
 
     const renderTabContent = () => {
         switch (activeTab) {
@@ -35,37 +35,62 @@ export default function WorkerMyJobs() {
     };
 
     return (
-        <div className="max-w-6xl mx-auto px-4 py-10">
-            {/* Top Tabs */}
-            <div className="border-b border-gray-300">
-                <div className="flex text-gray-600 font-semibold text-sm sm:text-base">
-                    {tabs.map((tab) => (
-                        <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
-                            className={classNames(
-                                "flex-1 text-center py-3 relative transition-colors duration-300",
-                                activeTab === tab
-                                    ? "text-[#FA5804]"
-                                    : "hover:text-[#FA5804]"
-                            )}
-                        >
-                            {tab}
-                            {activeTab === tab && (
-                                <span
-                                    className="absolute bottom-0 left-0 w-full h-[3px] bg-[#FA5804]"
-                                    style={{ borderRadius: "2px 2px 0 0" }}
-                                />
-                            )}
-                        </button>
-                    ))}
-                </div>
-            </div>
+        <div className="max-w-6xl mx-auto px-6 py-12">
+            {/* Tabs container */}
+            <nav
+                className="border-b border-gray-300"
+                role="tablist"
+                aria-label="Worker job status tabs"
+            >
+                <ul className="flex">
+                    {tabs.map((tab) => {
+                        const isActive = activeTab === tab;
 
-            {/* Content */}
-            <div className="mt-8 min-h-[200px]">
+                        return (
+                            <li key={tab} role="presentation" className="flex-1">
+                                <button
+                                    role="tab"
+                                    aria-selected={isActive}
+                                    aria-controls={`panel-${tab.replace(/\s+/g, "-").toLowerCase()}`}
+                                    id={`tab-${tab.replace(/\s+/g, "-").toLowerCase()}`}
+                                    tabIndex={isActive ? 0 : -1}
+                                    onClick={() => setActiveTab(tab)}
+                                    className={classNames(
+                                        "relative w-full py-4 px-3 text-center whitespace-nowrap font-semibold text-gray-600 transition-transform duration-300 ease-in-out focus:outline-none",
+                                        isActive
+                                            ? "text-[#FA5804] scale-110"
+                                            : "hover:text-[#FA5804] focus-visible:text-[#FA5804] scale-100"
+                                    )}
+                                    style={{
+                                        // Smooth scaling animation handled by transition-transform
+                                        transformOrigin: "center bottom",
+                                    }}
+                                >
+                                    {tab}
+                                    {/* Animated underline */}
+                                    <span
+                                        aria-hidden="true"
+                                        className={classNames(
+                                            "absolute bottom-0 left-1/2 transform -translate-x-1/2 h-1 w-14 rounded-t-full transition-all duration-300",
+                                            isActive ? "bg-[#FA5804]" : "bg-transparent"
+                                        )}
+                                    />
+                                </button>
+                            </li>
+                        );
+                    })}
+                </ul>
+            </nav>
+
+            {/* Content panel */}
+            <section
+                id={`panel-${activeTab.replace(/\s+/g, "-").toLowerCase()}`}
+                role="tabpanel"
+                aria-labelledby={`tab-${activeTab.replace(/\s+/g, "-").toLowerCase()}`}
+                className="mt-10 min-h-[250px] p-6 bg-white rounded-lg shadow-md"
+            >
                 {renderTabContent()}
-            </div>
+            </section>
         </div>
     );
 }
