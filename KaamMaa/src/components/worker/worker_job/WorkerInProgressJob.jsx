@@ -4,11 +4,14 @@ import { FaMapMarkerAlt, FaClock, FaBriefcase, FaPhone } from "react-icons/fa";
 import { useWorkerInProgressJob } from "../../../hooks/worker/useWorkerJob";
 import { getBackendImageUrl } from "../../../utils/backend_image";
 import { FaUserTie } from "react-icons/fa6";
-import JobDetailModal from "../modals/JobDetailModals"; // Adjust path as needed
+import JobDetailModal from "../modals/JobDetailModals";
 
 export default function WorkerInProgressJob() {
     const { inProgressJobs, isLoading, isError } = useWorkerInProgressJob();
     const [selectedJob, setSelectedJob] = useState(null);
+
+    // Replace this with your logged-in worker userId (auth context/store)
+    const userId = "your-worker-user-id";
 
     if (isLoading) return <div className="text-center text-gray-500">Loading in-progress jobs...</div>;
     if (isError) return <div className="text-center text-red-500">Failed to load in-progress jobs.</div>;
@@ -16,7 +19,7 @@ export default function WorkerInProgressJob() {
 
     return (
         <div className="space-y-6 relative">
-            {inProgressJobs.map((job, index) => (
+            {inProgressJobs.map((job) => (
                 <motion.div
                     key={job._id}
                     whileHover={{ scale: 1.02, boxShadow: "0 8px 24px rgba(250, 88, 4, 0.2)" }}
@@ -60,14 +63,18 @@ export default function WorkerInProgressJob() {
                             <span>{job.postedBy?.phone || "N/A"}</span>
                         </li>
                     </ul>
+
+                    <p className="mt-4 text-sm text-red-600 font-medium">
+                        ⚠️ Please contact the customer to review this job once completed. If not reviewed, it may be marked as <span className="font-bold">failed</span>.
+                    </p>
                 </motion.div>
             ))}
 
-            {/* Modal */}
             {selectedJob && (
                 <JobDetailModal
                     job={selectedJob}
                     onClose={() => setSelectedJob(null)}
+                    userId={userId}
                 />
             )}
         </div>

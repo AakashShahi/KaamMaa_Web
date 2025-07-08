@@ -1,25 +1,60 @@
 import React, { useState, useRef, useEffect } from "react";
-import { FaTimes, FaMapMarkerAlt, FaPhone, FaUserTie, FaClock, FaBriefcase, FaPaperPlane } from "react-icons/fa";
-
-const mockMessages = [
-    { from: "customer", text: "Hi, are you coming on time?" },
-    { from: "worker", text: "Yes, I will be there at 10:00 AM." },
-    { from: "customer", text: "Great, see you!" },
-    { from: "worker", text: "Looking forward to it!" },
-];
+import {
+    FaTimes, FaMapMarkerAlt, FaPhone, FaUserTie,
+    FaClock, FaBriefcase, FaPaperPlane
+} from "react-icons/fa";
+import { useGetChatHistory, useSendMessage } from "../../../hooks/chat/useChat";
+import socket from "../../../utils/socket";
 
 export default function JobDetailModal({ job, onClose }) {
-    const [messages, setMessages] = useState(mockMessages);
     const [newMessage, setNewMessage] = useState("");
     const chatEndRef = useRef(null);
+    const { messages, refetch } = useGetChatHistory(job._id);
+    const { mutate: sendMessage } = useSendMessage();
 
-    const customer = job?.postedBy || {};
+    const userId = localStorage.getItem("userId");
+
+    // Join socket room
+    useEffect(() => {
+        if (!job?._id) return;
+
+        socket.emit("joinRoom", { jobId: job._id });
+
+        socket.on("receiveMessage", (msg) => {
+            if (msg.jobId === job._id) {
+                refetch();
+            }
+        });
+
+        return () => socket.off("receiveMessage");
+    }, [job?._id]);
+
+    // Auto-scroll to bottom on new message
+    useEffect(() => {
+        if (chatEndRef.current) {
+            chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [messages]);
 
     const handleSend = () => {
-        if (newMessage.trim()) {
-            setMessages((prev) => [...prev, { from: "worker", text: newMessage.trim() }]);
-            setNewMessage("");
-        }
+        const trimmed = newMessage.trim();
+        if (!trimmed) return;
+
+        const payload = {
+            jobId: job._id,
+            content: trimmed,
+        };
+
+        sendMessage(payload, {
+            onSuccess: () => {
+                socket.emit("sendMessage", {
+                    jobId: job._id,
+                    content: trimmed,
+                    createdAt: new Date(),
+                });
+                setNewMessage("");
+            },
+        });
     };
 
     const handleKeyDown = (e) => {
@@ -29,13 +64,9 @@ export default function JobDetailModal({ job, onClose }) {
         }
     };
 
-    useEffect(() => {
-        if (chatEndRef.current) {
-            chatEndRef.current.scrollIntoView({ behavior: "smooth" });
-        }
-    }, [messages]);
-
     if (!job) return null;
+
+    const customer = job?.postedBy || {};
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -49,6 +80,7 @@ export default function JobDetailModal({ job, onClose }) {
 
                 <h2 className="text-2xl font-semibold text-[#FA5804] mb-4">Job Details</h2>
 
+                {/* Job Info */}
                 <div className="space-y-3 text-gray-800 text-sm">
                     <div className="flex items-center gap-2">
                         <FaBriefcase className="text-[#FA5804]" />
@@ -64,7 +96,7 @@ export default function JobDetailModal({ job, onClose }) {
                     </div>
                     <div className="flex items-center gap-2">
                         <FaUserTie className="text-[#FA5804]" />
-                        <span><strong>Customer:</strong> {customer.name}</span>
+                        <span><strong>Customer:</strong> {customer.username}</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <FaPhone className="text-[#FA5804]" />
@@ -77,22 +109,30 @@ export default function JobDetailModal({ job, onClose }) {
                 <div className="mt-6 border-t pt-5">
                     <h3 className="text-xl font-semibold text-gray-800 mb-3">💬 Chat with Customer</h3>
 
+                    {/* Messages */}
                     <div className="bg-gray-100 rounded-lg h-64 overflow-y-auto p-3 space-y-3">
-                        {messages.map((msg, idx) => (
-                            <div
-                                key={idx}
-                                className={`flex ${msg.from === "worker" ? "justify-start" : "justify-end"}`}
-                            >
+                        {messages.length === 0 ? (
+                            <p className="text-center text-gray-400 italic">
+                                No messages yet. Start the conversation!
+                            </p>
+                        ) : (
+                            messages.map((msg, idx) => (
                                 <div
-                                    className={`max-w-xs px-4 py-2 rounded-lg text-sm shadow ${msg.from === "worker"
-                                        ? "bg-white text-gray-800 border border-gray-300"
-                                        : "bg-[#FA5804] text-white"
-                                        }`}
+                                    key={idx}
+                                    className={`flex ${msg.senderId?._id === userId ? "justify-end" : "justify-start"}`}
                                 >
-                                    {msg.text}
+                                    <div
+                                        className={`max-w-xs px-4 py-2 rounded-lg text-sm shadow
+                                            ${msg.senderId?._id === userId
+                                                ? "bg-[#FA5804] text-white"
+                                                : "bg-white text-gray-800 border border-gray-300"
+                                            }`}
+                                    >
+                                        {msg.content}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))
+                        )}
                         <div ref={chatEndRef} />
                     </div>
 
