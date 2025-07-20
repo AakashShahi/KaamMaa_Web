@@ -1,35 +1,64 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback, useContext } from "react"; // ADD useContext here
 import {
     FaTimes, FaMapMarkerAlt, FaPhone, FaUserTie,
     FaClock, FaBriefcase, FaPaperPlane
 } from "react-icons/fa";
 import { useGetChatHistory, useSendMessage } from "../../../hooks/chat/useChat";
 import socket from "../../../utils/socket";
+import { AuthContext } from "../../../auth/AuthProvider";
 
-export default function JobDetailModal({ job, onClose }) {
+export default function JobDetailModal({ job, onClose }) { // Remove userId: propUserId here, as we'll get it from context
     const [newMessage, setNewMessage] = useState("");
     const chatEndRef = useRef(null);
     const { messages, refetch } = useGetChatHistory(job._id);
     const { mutate: sendMessage } = useSendMessage();
 
-    const userId = localStorage.getItem("userId");
+    // Consume AuthContext to get the logged-in user
+    const { user } = useContext(AuthContext); // Get the user object from AuthContext
 
-    // Join socket room
+    // Get the logged-in worker's userId from the AuthContext user object
+    const loggedInWorkerId = user?._id; // Use the _id from the user object
+
+
+    // Get the customer's ID from the job object for alignment
+    const customerId = job?.postedBy?._id; // This is the customer's ID
+
+    // Debugging: Log the worker's ID that you are using for comparison
     useEffect(() => {
-        if (!job?._id) return;
+        console.log("Worker's loggedInWorkerId (from AuthContext):", loggedInWorkerId);
+        if (!loggedInWorkerId) {
+            console.warn("WARNING: loggedInWorkerId is null or undefined. Chat alignment will not work correctly. Ensure user is logged in and context is providing _id.");
+        }
+        console.log("Customer ID (job.postedBy._id):", customerId);
+    }, [loggedInWorkerId, customerId]);
 
+
+    const handleReceiveMessage = useCallback((msg) => {
+        console.log("Socket received message (raw):", msg);
+        if (msg.jobId === job._id) {
+            console.log("Message for current job. Refetching chat history.");
+            refetch();
+        }
+    }, [job._id, refetch]);
+
+    useEffect(() => {
+        if (!job?._id) {
+            console.log("No job ID, skipping socket room join.");
+            return;
+        }
+
+        console.log(`Attempting to join socket room: ${job._id}`);
         socket.emit("joinRoom", { jobId: job._id });
 
-        socket.on("receiveMessage", (msg) => {
-            if (msg.jobId === job._id) {
-                refetch();
-            }
-        });
+        socket.on("receiveMessage", handleReceiveMessage);
 
-        return () => socket.off("receiveMessage");
-    }, [job?._id]);
+        return () => {
+            console.log(`Leaving socket room: ${job._id}`);
+            socket.emit("leaveRoom", { jobId: job._id }); // Optional: Emit leaveRoom event if your backend supports it
+            socket.off("receiveMessage", handleReceiveMessage);
+        };
+    }, [job?._id, handleReceiveMessage]);
 
-    // Auto-scroll to bottom on new message
     useEffect(() => {
         if (chatEndRef.current) {
             chatEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -45,15 +74,16 @@ export default function JobDetailModal({ job, onClose }) {
             content: trimmed,
         };
 
+        console.log("Sending message payload (REST API):", payload);
+
         sendMessage(payload, {
-            onSuccess: () => {
-                socket.emit("sendMessage", {
-                    jobId: job._id,
-                    content: trimmed,
-                    createdAt: new Date(),
-                });
+            onSuccess: (data) => {
+                console.log("Message sent successfully via API, input cleared.");
                 setNewMessage("");
             },
+            onError: (error) => {
+                console.error("Failed to send message via API:", error);
+            }
         });
     };
 
@@ -80,7 +110,6 @@ export default function JobDetailModal({ job, onClose }) {
 
                 <h2 className="text-2xl font-semibold text-[#FA5804] mb-4">Job Details</h2>
 
-                {/* Job Info */}
                 <div className="space-y-3 text-gray-800 text-sm">
                     <div className="flex items-center gap-2">
                         <FaBriefcase className="text-[#FA5804]" />
@@ -116,22 +145,36 @@ export default function JobDetailModal({ job, onClose }) {
                                 No messages yet. Start the conversation!
                             </p>
                         ) : (
-                            messages.map((msg, idx) => (
-                                <div
-                                    key={idx}
-                                    className={`flex ${msg.senderId?._id === userId ? "justify-end" : "justify-start"}`}
-                                >
+                            messages.map((msg, idx) => {
+                                // Extract the sender's actual _id from the populated object
+                                const messageSenderId = msg.senderId && typeof msg.senderId === 'object'
+                                    ? msg.senderId._id
+                                    : msg.senderId; // Fallback for non-object senderId (e.g., if backend didn't populate for some reason, or optimistic)
+
+                                // Debugging: Log senderId from message and worker's ID
+                                console.log(`Message ${idx} - senderId:`, messageSenderId, " | loggedInWorkerId:", loggedInWorkerId);
+                                console.log(`Comparison result (messageSenderId === loggedInWorkerId):`, messageSenderId === loggedInWorkerId);
+
+                                // Determine if the message is from the logged-in worker (LEFT side)
+                                const isWorkerMessage = messageSenderId === loggedInWorkerId;
+
+                                return (
                                     <div
-                                        className={`max-w-xs px-4 py-2 rounded-lg text-sm shadow
-                                            ${msg.senderId?._id === userId
-                                                ? "bg-[#FA5804] text-white"
-                                                : "bg-white text-gray-800 border border-gray-300"
-                                            }`}
+                                        key={idx}
+                                        className={`flex ${isWorkerMessage ? "justify-start" : "justify-end"}`}
                                     >
-                                        {msg.content}
+                                        <div
+                                            className={`max-w-xs px-4 py-2 rounded-lg text-sm shadow
+                                                ${isWorkerMessage
+                                                    ? "bg-white text-gray-800 border border-gray-300" // Worker's bubble (left)
+                                                    : "bg-[#FA5804] text-white" // Customer's bubble (right)
+                                                }`}
+                                        >
+                                            {msg.content}
+                                        </div>
                                     </div>
-                                </div>
-                            ))
+                                );
+                            })
                         )}
                         <div ref={chatEndRef} />
                     </div>
