@@ -1,4 +1,4 @@
-import { loginUserApi, registerUserApi, requestResetPasswordApi } from "../api/authApi"
+import { loginUserApi, registerUserApi, requestResetPasswordApi, resetPasswordApi } from "../api/authApi"
 
 export const registerUserService = async (formData) => {
     try {
@@ -35,5 +35,6 @@ export const resetPasswordService = async (data, token) => {
         return response.data;
     } catch (err) {
         throw err.response?.data || { message: "Reset Password Failed" };
+
     }
 };

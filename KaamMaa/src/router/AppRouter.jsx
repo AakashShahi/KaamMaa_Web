@@ -18,6 +18,8 @@ import WorkerJobsPage from '../pages/workers_page/WorkerJobsPage';
 import WorkerProfilePage from '../pages/workers_page/WorkerProfilePage';
 import WorkerReviewPage from '../pages/workers_page/WorkerReviewPage';
 import AdminJobManagement from '../components/admin/AdminJobManagement';
+import RequestResetPasswordPage from '../pages/RequestPassword';
+import ResetPasswordPage from '../pages/ResetPage';
 
 // Optional: NotFound component for consistency
 const NotFound = () => <div className="text-center text-xl font-bold mt-10">404 Ghar Jaa</div>;
@@ -30,6 +32,8 @@ export default function AppRouter() {
         <Route path="/" element={<LoginPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/request-reset-password" element={<RequestResetPasswordPage />}></Route>
+        <Route path="/reset/password/:token" element={<ResetPasswordPage />}></Route>
 
         {/* Worker Protected Routes */}
         {/* Worker Dashboard and Job Management */}

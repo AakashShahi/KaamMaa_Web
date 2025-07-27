@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import { loginUserService, requestResetPasswordService } from "../services/authService";
+import { loginUserService, requestResetPasswordService, resetPasswordService } from "../services/authService";
 import { useMutation } from "@tanstack/react-query";
 import { useContext } from "react";
 import { AuthContext } from "../auth/AuthProvider";
@@ -40,11 +40,11 @@ export const useResetPassword = () => {
             mutationKey: ['reset-password'],
             mutationFn: ({ data, token }) => resetPasswordService(data, token),
             onSuccess: (data) => {
-                toast.success(data?.message || "Reset successful")
+                toast.success(data?.message || "Reset successful");
             },
             onError: (err) => {
-                toast.err(err?.message || "Reset Failed")
+                toast.error(err?.message || "Reset Failed");
             }
         }
-    )
+    );
 }
