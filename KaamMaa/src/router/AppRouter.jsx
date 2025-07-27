@@ -32,6 +32,7 @@ export default function AppRouter() {
         <Route path="/register" element={<RegisterPage />} />
 
         {/* Worker Protected Routes */}
+        {/* Worker Dashboard and Job Management */}
         <Route path="/worker/*" element={<WorkerUserRoute />}>
           <Route path="dashboard" element={<MainLayout />}>
             <Route index element={<WorkerDashboardPage />} />
