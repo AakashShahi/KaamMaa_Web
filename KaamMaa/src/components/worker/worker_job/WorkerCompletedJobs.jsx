@@ -116,7 +116,7 @@ export default function WorkerCompletedJobs() {
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <FaBriefcase className="text-blue-500" />
-                                    {job.category?.name || "General"}
+                                    {job.category?.category || "General"}
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <FaClock className="text-green-500" />

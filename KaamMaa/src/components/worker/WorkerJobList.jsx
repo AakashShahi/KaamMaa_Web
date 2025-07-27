@@ -189,7 +189,7 @@ export default function WorkerJobList() {
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <FaBriefcase className="text-blue-600" />
-                                                <span>{job.category?.name || "General"}</span>
+                                                <span>{job.category?.category || "General"}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <FaClock className="text-green-600" />
@@ -321,7 +321,7 @@ export default function WorkerJobList() {
                                 <FaBriefcase className="text-[#FA5804] text-2xl flex-shrink-0" />
                                 <div>
                                     <dt className="font-semibold">Category</dt>
-                                    <dd>{selectedJob.category?.name || "N/A"}</dd>
+                                    <dd>{selectedJob.category?.category || "N/A"}</dd>
                                 </div>
                             </div>
 

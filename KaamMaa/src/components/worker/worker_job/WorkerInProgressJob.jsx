@@ -31,7 +31,7 @@ export default function WorkerInProgressJob() {
                         {job.category?.icon ? (
                             <img
                                 src={getBackendImageUrl(job.category.icon)}
-                                alt={`${job.category?.name} icon`}
+                                alt={`${job.category?.category} icon`}
                                 className="w-16 h-16 rounded-lg border border-[#FA5804]"
                             />
                         ) : (

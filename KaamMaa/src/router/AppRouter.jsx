@@ -17,6 +17,7 @@ import WorkerJobListPage from '../pages/workers_page/WorkerJobListPage';
 import WorkerJobsPage from '../pages/workers_page/WorkerJobsPage';
 import WorkerProfilePage from '../pages/workers_page/WorkerProfilePage';
 import WorkerReviewPage from '../pages/workers_page/WorkerReviewPage';
+import AdminJobManagement from '../components/admin/AdminJobManagement';
 
 // Optional: NotFound component for consistency
 const NotFound = () => <div className="text-center text-xl font-bold mt-10">404 Ghar Jaa</div>;
@@ -47,6 +48,7 @@ export default function AppRouter() {
           <Route path='dashboard' element={<AdminMainLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="users" element={<AdminUserManagement />} />
+            <Route path="jobs" element={<AdminJobManagement />} />
             <Route path="reviews" element={<AdminReviewManagement />} />
             <Route path="professions" element={<AdminProfessionManagement />} />
             <Route path="verifications" element={<AdminVerificationsManagement />} />

@@ -231,7 +231,7 @@ export default function WorkerProfileModals({
                                         <option value="">Select Profession</option>
                                         {professions.map((p) => (
                                             <option key={p._id} value={p._id}>
-                                                {p.category}
+                                                {p.name}
                                             </option>
                                         ))}
                                     </Field>

@@ -30,6 +30,7 @@ export default function Sidebar() {
                     <ul className="space-y-2 text-sm">
                         <SidebarItem to="/admin/dashboard" icon={<LayoutDashboard size={18} />} label="Dashboard" />
                         <SidebarItem to="/admin/dashboard/users" icon={<Users size={18} />} label="User Management" />
+                        <SidebarItem to="/admin/dashboard/jobs" icon={<Briefcase size={18} />} label="Job Management" />
                         <SidebarItem to="/admin/dashboard/reviews" icon={<MessageSquare size={18} />} label="Review Management" />
                         <SidebarItem to="/admin/dashboard/professions" icon={<Briefcase size={18} />} label="Profession Management" />
                         <SidebarItem to="/admin/dashboard/verifications" icon={<FileCheck size={18} />} label="Verification Requests" />
