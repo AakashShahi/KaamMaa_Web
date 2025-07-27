@@ -1,5 +1,6 @@
 import { getAllJobApi, deleteAllJobApi, deleteJobApi } from "../../api/admin/adminJobApi";
 
+//Service functions for admin job management
 export const getAllJobsService = async () => {
     try {
         const res = await getAllJobApi();
