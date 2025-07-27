@@ -15,9 +15,6 @@ import {
 } from "../../hooks/admin/useAdminJob";
 import { getBackendImageUrl } from "../../utils/backend_image";
 
-// Status colors for different job states
-
-
 const statusColors = {
     open: {
         badge: "bg-green-100 text-green-700 border-green-300",
@@ -52,6 +49,7 @@ export default function AdminJobManagement() {
 
     const [selectedJob, setSelectedJob] = useState(null);
     const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
+    const [statusFilter, setStatusFilter] = useState("all");
 
     const handleConfirmDelete = () => {
         if (selectedJob) {
@@ -67,30 +65,50 @@ export default function AdminJobManagement() {
         });
     };
 
+    const filteredJobs =
+        statusFilter === "all"
+            ? jobs
+            : jobs.filter((job) => job.status === statusFilter);
+
     return (
         <div className="max-w-7xl mx-auto px-6 py-10">
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-8">
                 <h1 className="text-3xl font-extrabold text-gray-900">
-                    Manage All Jobs ({jobs.length})
+                    Manage Jobs ({filteredJobs.length})
                 </h1>
-                <button
-                    onClick={() => setConfirmDeleteAll(true)}
-                    disabled={isDeletingAll || jobs.length === 0}
-                    className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-300 disabled:opacity-50"
-                >
-                    {isDeletingAll ? "Deleting All..." : "Delete All Jobs"}
-                </button>
+                <div className="flex flex-wrap items-center gap-4">
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="border border-gray-300 rounded px-4 py-2 text-gray-700 focus:outline-none focus:ring focus:border-blue-300"
+                    >
+                        <option value="all">All Statuses</option>
+                        <option value="open">Open</option>
+                        <option value="assigned">Assigned</option>
+                        <option value="requested">Requested</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="done">Done</option>
+                        <option value="failed">Failed</option>
+                    </select>
+                    <button
+                        onClick={() => setConfirmDeleteAll(true)}
+                        disabled={isDeletingAll || jobs.length === 0}
+                        className="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-300 disabled:opacity-50"
+                    >
+                        {isDeletingAll ? "Deleting All..." : "Delete All Jobs"}
+                    </button>
+                </div>
             </div>
 
             {isLoading ? (
                 <p className="text-center text-gray-500 text-lg">Loading jobs...</p>
             ) : isError ? (
                 <p className="text-center text-red-600 font-semibold">Failed to load jobs.</p>
-            ) : jobs.length === 0 ? (
-                <p className="text-center text-gray-400 text-lg">No jobs found.</p>
+            ) : filteredJobs.length === 0 ? (
+                <p className="text-center text-gray-400 text-lg">No jobs found for selected status.</p>
             ) : (
                 <div className="flex flex-col gap-8">
-                    {jobs.map((job, index) => {
+                    {filteredJobs.map((job, index) => {
                         const customer = job.postedBy || {};
                         const statusTheme = statusColors[job.status] || {
                             badge: "bg-gray-100 text-gray-600",
@@ -105,7 +123,6 @@ export default function AdminJobManagement() {
                                 transition={{ duration: 0.3, delay: index * 0.05 }}
                                 className={`rounded-xl shadow-md border border-gray-200 p-6 flex flex-col md:flex-row gap-6 hover:shadow-xl transition duration-300 ${statusTheme.card}`}
                             >
-                                {/* Icon */}
                                 <div className="w-24 h-24 flex-shrink-0 flex items-center justify-center bg-white rounded-lg border border-gray-200">
                                     {job.category?.icon ? (
                                         <img
@@ -118,7 +135,6 @@ export default function AdminJobManagement() {
                                     )}
                                 </div>
 
-                                {/* Details */}
                                 <div className="flex-1 space-y-3">
                                     <div className="flex justify-between items-center">
                                         <h3 className="text-2xl font-semibold text-gray-900">
@@ -162,7 +178,6 @@ export default function AdminJobManagement() {
                                     </div>
                                 </div>
 
-                                {/* Action */}
                                 <div className="self-center md:self-start">
                                     <button
                                         onClick={() => setSelectedJob(job)}
@@ -179,7 +194,6 @@ export default function AdminJobManagement() {
                 </div>
             )}
 
-            {/* Delete Job Confirmation Modal */}
             <AnimatePresence>
                 {selectedJob && (
                     <Modal
@@ -212,7 +226,6 @@ export default function AdminJobManagement() {
     );
 }
 
-// Reusable Modal Component
 function Modal({ onClose, onConfirm, isDeleting, title, description, jobDetails }) {
     return (
         <div
