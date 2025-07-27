@@ -1,15 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate, useParams } from "react-router-dom";
 import { useResetPassword } from "../hooks/useLoginUserTan";
-import { FiLock, FiCheck } from "react-icons/fi";
+import { FiLock, FiCheck, FiEye, FiEyeOff } from "react-icons/fi";
 import logo from "../assets/logo/kaammaa_logo.png";
 
 export default function ResetPasswordPage() {
     const { token } = useParams();
     const navigate = useNavigate();
     const resetPassword = useResetPassword();
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const validationSchema = Yup.object({
         password: Yup.string()
@@ -55,7 +58,7 @@ export default function ResetPasswordPage() {
                         <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-orange-400">
                             <FiLock className="text-gray-400 mr-2" />
                             <input
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 name="password"
                                 id="password"
                                 placeholder="Enter new password"
@@ -64,6 +67,13 @@ export default function ResetPasswordPage() {
                                 onBlur={formik.handleBlur}
                                 value={formik.values.password}
                             />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="text-gray-400 ml-2"
+                            >
+                                {showPassword ? <FiEyeOff /> : <FiEye />}
+                            </button>
                         </div>
                         {formik.touched.password && formik.errors.password && (
                             <p className="text-red-500 text-xs mt-1">{formik.errors.password}</p>
@@ -76,7 +86,7 @@ export default function ResetPasswordPage() {
                         <div className="flex items-center border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-orange-400">
                             <FiCheck className="text-gray-400 mr-2" />
                             <input
-                                type="password"
+                                type={showConfirmPassword ? "text" : "password"}
                                 name="confirmPassword"
                                 id="confirmPassword"
                                 placeholder="Confirm password"
@@ -85,6 +95,13 @@ export default function ResetPasswordPage() {
                                 onBlur={formik.handleBlur}
                                 value={formik.values.confirmPassword}
                             />
+                            <button
+                                type="button"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                className="text-gray-400 ml-2"
+                            >
+                                {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
+                            </button>
                         </div>
                         {formik.touched.confirmPassword && formik.errors.confirmPassword && (
                             <p className="text-red-500 text-xs mt-1">{formik.errors.confirmPassword}</p>
