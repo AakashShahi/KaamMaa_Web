@@ -15,6 +15,9 @@ import {
 } from "../../hooks/admin/useAdminJob";
 import { getBackendImageUrl } from "../../utils/backend_image";
 
+// Status colors for different job states
+
+
 const statusColors = {
     open: {
         badge: "bg-green-100 text-green-700 border-green-300",
