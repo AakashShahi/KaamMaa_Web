@@ -5,7 +5,7 @@ import {
 
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid,
-    Tooltip, ResponsiveContainer
+    Tooltip, ResponsiveContainer, LineChart, Line
 } from "recharts";
 
 import { motion } from "framer-motion";
@@ -13,6 +13,7 @@ import { useAdminUsers } from "../../hooks/admin/useAdminUser";
 import { useAdminProfession } from "../../hooks/admin/useAdminProfession";
 import { useGetVerificationRequests } from "../../hooks/admin/useAdminVerification";
 import { useGetAllReviews } from "../../hooks/admin/useAdminReview";
+import { useAdminJob } from "../../hooks/admin/useAdminJob";
 
 const months = [
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -32,6 +33,22 @@ function getMonthlyUserData(users) {
     return months.map((month, index) => ({
         month,
         users: monthCount[index],
+    }));
+}
+
+function getMonthlyJobData(jobs) {
+    const currentYear = new Date().getFullYear();
+    const monthCount = new Array(12).fill(0);
+    jobs.forEach(job => {
+        const created = new Date(job.createdAt);
+        if (created.getFullYear() === currentYear) {
+            const monthIndex = created.getMonth();
+            monthCount[monthIndex]++;
+        }
+    });
+    return months.map((month, index) => ({
+        month,
+        jobs: monthCount[index],
     }));
 }
 
@@ -55,18 +72,24 @@ export default function AdminDashboard() {
         pagination,
     } = useGetAllReviews({ page: 1, limit: 1, search: "" });
 
-    const totalReviews = pagination.total || 0;
-
     const {
         verifications = [],
         isLoading: verificationLoading,
         isError: verificationError,
     } = useGetVerificationRequests({ page: 1, limit: 1000 });
 
+    const {
+        jobs = [],
+        isLoading: jobsLoading,
+        isError: jobsError,
+    } = useAdminJob();
+
+    const totalReviews = pagination.total || 0;
     const totalCustomers = users.filter((u) => u.role === "customer").length;
     const totalWorkers = users.filter((u) => u.role === "worker").length;
     const totalProfessions = professions.length;
     const pendingVerifications = verifications.length;
+    const totalJobs = jobs.length;
 
     const stats = [
         {
@@ -99,11 +122,18 @@ export default function AdminDashboard() {
             icon: <Briefcase className="text-orange-600" size={28} />,
             color: "bg-orange-100",
         },
+        {
+            label: "Total Jobs",
+            value: jobsLoading ? "..." : totalJobs,
+            icon: <Briefcase className="text-pink-600" size={28} />,
+            color: "bg-pink-100",
+        },
     ];
 
-    const monthlyData = getMonthlyUserData(users);
+    const monthlyUserData = getMonthlyUserData(users);
+    const monthlyJobData = getMonthlyJobData(jobs);
 
-    if (usersLoading || professionsLoading) {
+    if (usersLoading || professionsLoading || jobsLoading) {
         return (
             <section className="flex justify-center items-center h-48">
                 <p className="text-gray-500 text-lg font-medium animate-pulse">Loading dashboard stats...</p>
@@ -111,7 +141,7 @@ export default function AdminDashboard() {
         );
     }
 
-    if (usersError || professionsError || verificationError) {
+    if (usersError || professionsError || verificationError || jobsError) {
         return (
             <section className="flex justify-center items-center h-48">
                 <p className="text-red-500 text-lg font-semibold">Failed to load dashboard data.</p>
@@ -159,7 +189,7 @@ export default function AdminDashboard() {
                 ))}
             </motion.div>
 
-            {/* Bar Chart */}
+            {/* User Bar Chart */}
             <motion.section
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -170,13 +200,34 @@ export default function AdminDashboard() {
                     Monthly New User Registrations ({new Date().getFullYear()})
                 </h2>
                 <ResponsiveContainer width="100%" height={320}>
-                    <BarChart data={monthlyData}>
+                    <BarChart data={monthlyUserData}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="month" />
                         <YAxis />
                         <Tooltip />
                         <Bar dataKey="users" fill="#FA5804" radius={[6, 6, 0, 0]} />
                     </BarChart>
+                </ResponsiveContainer>
+            </motion.section>
+
+            {/* Job Line Chart */}
+            <motion.section
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.6 }}
+                className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200"
+            >
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                    Monthly Job Posts ({new Date().getFullYear()})
+                </h2>
+                <ResponsiveContainer width="100%" height={320}>
+                    <LineChart data={monthlyJobData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="month" />
+                        <YAxis />
+                        <Tooltip />
+                        <Line type="monotone" dataKey="jobs" stroke="#14B8A6" strokeWidth={3} dot={{ r: 5 }} />
+                    </LineChart>
                 </ResponsiveContainer>
             </motion.section>
         </section>
@@ -194,4 +245,3 @@ function StatCard({ icon, label, value, color }) {
         </div>
     );
 }
-
