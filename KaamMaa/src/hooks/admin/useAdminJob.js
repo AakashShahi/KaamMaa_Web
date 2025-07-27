@@ -2,6 +2,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { getAllJobsService, deleteJobService, deleteAllJobsService } from "../../services/admin/adminJobService";
 
+// Custom hook for managing admin jobs
+// It provides functionalities to fetch all jobs, delete a specific job, and delete all jobs
+
 export const useAdminJob = () => {
     const queryClient = useQueryClient();
 
