@@ -13,6 +13,7 @@ import logo from '../../assets/logo/kaammaa_logo.png';
 import workerImg from '../../assets/logo/login_worker.png';
 import { useLoginUserTan } from '../../hooks/useLoginUserTan';
 import { AuthContext } from '../../auth/AuthProvider';
+import { motion } from "framer-motion";
 
 export default function LoginForm() {
     const navigate = useNavigate();
@@ -254,9 +255,34 @@ export default function LoginForm() {
                     </div>
                 </>
             ) : (
-                <div className="w-full h-screen flex flex-col items-center justify-center gap-4">
-                    <h2 className="text-xl font-bold text-black">Welcome, {user.username}</h2>
-                    <button onClick={logout} className="text-[#FA5804] font-semibold hover:underline">Logout</button>
+                <div className="w-full h-screen bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 flex flex-col items-center justify-center px-6 text-center">
+                    <motion.h1
+                        initial={{ opacity: 0, y: -50, scale: 0.8 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ duration: 1, ease: "easeOut" }}
+                        className="text-5xl md:text-7xl font-extrabold text-white drop-shadow-lg"
+                    >
+                        Welcome back, <span className="underline decoration-white/70">{user.username}</span>!
+                    </motion.h1>
+
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 0.9 }}
+                        transition={{ delay: 1.2, duration: 1 }}
+                        className="mt-6 text-xl md:text-2xl text-white/90 max-w-xl"
+                    >
+                        You are already logged in. Please logout to access the login page.
+                    </motion.p>
+
+                    <motion.button
+                        onClick={logout}
+                        whileHover={{ scale: 1.1, boxShadow: "0 0 20px rgba(255, 255, 255, 0.8)" }}
+                        whileTap={{ scale: 0.95 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                        className="mt-12 px-10 py-4 bg-white rounded-full text-orange-500 font-bold text-xl shadow-lg hover:bg-orange-50 focus:outline-none focus:ring-4 focus:ring-white/70"
+                    >
+                        Logout
+                    </motion.button>
                 </div>
 
             )}
