@@ -54,13 +54,13 @@ function getMonthlyJobData(jobs) {
 
 export default function AdminDashboard() {
     const {
-        users,
+        users = [],
         isLoading: usersLoading,
         isError: usersError,
     } = useAdminUsers();
 
     const {
-        professions,
+        professions = [],
         isLoading: professionsLoading,
         isError: professionsError,
     } = useAdminProfession();

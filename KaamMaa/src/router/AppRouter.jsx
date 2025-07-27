@@ -65,6 +65,11 @@ export default function AppRouter() {
 
         {/* Catch-all fallback (optional) */}
         <Route path="*" element={<NotFound />} />
+
+
+        {/* Test Route for Admin Dashboard */}
+        <Route path="/test-admin-dashboard" element={<AdminDashboard />} />
+
       </Routes>
     </BrowserRouter>
   );
