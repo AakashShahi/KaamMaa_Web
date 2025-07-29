@@ -20,9 +20,8 @@ import WorkerReviewPage from '../pages/workers_page/WorkerReviewPage';
 import AdminJobManagement from '../components/admin/AdminJobManagement';
 import RequestResetPasswordPage from '../pages/RequestPassword';
 import ResetPasswordPage from '../pages/ResetPage';
+import NotFoundPage from '../pages/NotFoundPage';
 
-// Optional: NotFound component for consistency
-const NotFound = () => <div className="text-center text-xl font-bold mt-10">404 Ghar Jaa</div>;
 
 export default function AppRouter() {
   return (
@@ -44,7 +43,7 @@ export default function AppRouter() {
             <Route path='myjobs' element={<WorkerJobsPage />} />
             <Route path='search' element={<WorkerReviewPage />} />
             <Route path='profile' element={<WorkerProfilePage />} />
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>
 
@@ -59,12 +58,12 @@ export default function AppRouter() {
             <Route path="verifications" element={<AdminVerificationsManagement />} />
             <Route path="settings" element={<AdminSetting />} />
 
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>
 
         {/* Catch-all fallback (optional) */}
-        <Route path="*" element={<NotFound />} />
+        <Route path="*" element={<NotFoundPage />} />
 
 
         {/* Test Route for Admin Dashboard */}
