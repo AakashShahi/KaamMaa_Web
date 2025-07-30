@@ -21,55 +21,59 @@ import AdminJobManagement from '../components/admin/AdminJobManagement';
 import RequestResetPasswordPage from '../pages/RequestPassword';
 import ResetPasswordPage from '../pages/ResetPage';
 import NotFoundPage from '../pages/NotFoundPage';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/request-reset-password" element={<RequestResetPasswordPage />}></Route>
-        <Route path="/reset/password/:token" element={<ResetPasswordPage />}></Route>
+      <QueryClientProvider client={queryClient}>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/request-reset-password" element={<RequestResetPasswordPage />}></Route>
+          <Route path="/reset/password/:token" element={<ResetPasswordPage />}></Route>
 
-        {/* Worker Protected Routes */}
-        {/* Worker Dashboard and Job Management */}
-        <Route path="/worker/*" element={<WorkerUserRoute />}>
-          <Route path="dashboard" element={<MainLayout />}>
-            <Route index element={<WorkerDashboardPage />} />
-            <Route path='jobs' element={<WorkerJobListPage />} />
-            <Route path='myjobs' element={<WorkerJobsPage />} />
-            <Route path='search' element={<WorkerReviewPage />} />
-            <Route path='profile' element={<WorkerProfilePage />} />
-            <Route path="*" element={<NotFoundPage />} />
+          {/* Worker Protected Routes */}
+          {/* Worker Dashboard and Job Management */}
+          <Route path="/worker/*" element={<WorkerUserRoute />}>
+            <Route path="dashboard" element={<MainLayout />}>
+              <Route index element={<WorkerDashboardPage />} />
+              <Route path='jobs' element={<WorkerJobListPage />} />
+              <Route path='myjobs' element={<WorkerJobsPage />} />
+              <Route path='search' element={<WorkerReviewPage />} />
+              <Route path='profile' element={<WorkerProfilePage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Route>
           </Route>
-        </Route>
 
-        {/* Admin Protected Routes */}
-        <Route path="/admin/*" element={<AdminUserRoute />}>
-          <Route path='dashboard' element={<AdminMainLayout />}>
-            <Route index element={<AdminDashboard />} />
-            <Route path="users" element={<AdminUserManagement />} />
-            <Route path="jobs" element={<AdminJobManagement />} />
-            <Route path="reviews" element={<AdminReviewManagement />} />
-            <Route path="professions" element={<AdminProfessionManagement />} />
-            <Route path="verifications" element={<AdminVerificationsManagement />} />
-            <Route path="settings" element={<AdminSetting />} />
+          {/* Admin Protected Routes */}
+          <Route path="/admin/*" element={<AdminUserRoute />}>
+            <Route path='dashboard' element={<AdminMainLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="users" element={<AdminUserManagement />} />
+              <Route path="jobs" element={<AdminJobManagement />} />
+              <Route path="reviews" element={<AdminReviewManagement />} />
+              <Route path="professions" element={<AdminProfessionManagement />} />
+              <Route path="verifications" element={<AdminVerificationsManagement />} />
 
-            <Route path="*" element={<NotFoundPage />} />
+              <Route path="settings" element={<AdminSetting />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Route>
           </Route>
-        </Route>
 
-        {/* Catch-all fallback (optional) */}
-        <Route path="*" element={<NotFoundPage />} />
+          {/* Catch-all fallback (optional) */}
+          <Route path="*" element={<NotFoundPage />} />
 
 
-        {/* Test Route for Admin Dashboard */}
-        <Route path="/test-admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/test-admin-dashboard" element={<AdminDashboard />} />
 
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </QueryClientProvider>
+    </BrowserRouter >
   );
 }
